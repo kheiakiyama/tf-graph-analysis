@@ -1,0 +1,155 @@
+{
+  "traceEvents": [
+    {
+      "name": "provider[\"terraform.io/builtin/terraform\"]",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 0,
+      "dur": 100000,
+      "pid": 1,
+      "tid": 1,
+      "cname": "bad",
+      "args": {
+        "duration_human": "100ms",
+        "is_critical": true,
+        "is_resource": false,
+        "slack": "0s",
+        "type": "provider"
+      }
+    },
+    {
+      "name": "terraform_data.root_a",
+      "cat": "resource",
+      "ph": "X",
+      "ts": 2000,
+      "dur": 2000,
+      "pid": 1,
+      "tid": 2,
+      "args": {
+        "duration_human": "2ms",
+        "is_critical": false,
+        "is_resource": true,
+        "slack": "1ms",
+        "type": "resource"
+      }
+    },
+    {
+      "name": "terraform_data.root_b",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 2000,
+      "dur": 2000,
+      "pid": 1,
+      "tid": 3,
+      "cname": "bad",
+      "args": {
+        "duration_human": "2ms",
+        "is_critical": true,
+        "is_resource": true,
+        "slack": "0s",
+        "type": "resource"
+      }
+    },
+    {
+      "name": "terraform_data.middle_fast",
+      "cat": "resource",
+      "ph": "X",
+      "ts": 4000,
+      "dur": 1000,
+      "pid": 1,
+      "tid": 2,
+      "args": {
+        "duration_human": "1ms",
+        "is_critical": false,
+        "is_resource": true,
+        "slack": "1ms",
+        "type": "resource"
+      }
+    },
+    {
+      "name": "terraform_data.slow_step_1",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 4000,
+      "dur": 1000,
+      "pid": 1,
+      "tid": 3,
+      "cname": "bad",
+      "args": {
+        "duration_human": "1ms",
+        "is_critical": true,
+        "is_resource": true,
+        "slack": "0s",
+        "type": "resource"
+      }
+    },
+    {
+      "name": "terraform_data.slow_step_2",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 9000,
+      "dur": 1000,
+      "pid": 1,
+      "tid": 2,
+      "cname": "bad",
+      "args": {
+        "duration_human": "1ms",
+        "is_critical": true,
+        "is_resource": true,
+        "slack": "0s",
+        "type": "resource"
+      }
+    },
+    {
+      "name": "provider[\"terraform.io/builtin/terraform\"]",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 104000,
+      "dur": 100000,
+      "pid": 1,
+      "tid": 1,
+      "cname": "bad",
+      "args": {
+        "duration_human": "100ms",
+        "is_critical": true,
+        "is_resource": false,
+        "slack": "0s",
+        "type": "provider"
+      }
+    },
+    {
+      "name": "root",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 0,
+      "dur": 1,
+      "pid": 1,
+      "tid": 4,
+      "cname": "bad",
+      "args": {
+        "duration_human": "0s",
+        "is_critical": true,
+        "is_resource": false,
+        "slack": "0s",
+        "type": "meta"
+      }
+    },
+    {
+      "name": "terraform_data.leaf",
+      "cat": "critical",
+      "ph": "X",
+      "ts": 5000,
+      "dur": 1,
+      "pid": 1,
+      "tid": 3,
+      "cname": "bad",
+      "args": {
+        "duration_human": "0s",
+        "is_critical": true,
+        "is_resource": true,
+        "slack": "0s",
+        "type": "resource"
+      }
+    }
+  ]
+}

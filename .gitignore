@@ -1,0 +1,18 @@
+# Binaries
+bin/
+/tf-graph-analysis
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Test artifacts
+testdata/tf_sample/.terraform
+testdata/tf_sample/*.tfstate*
+testdata/tf_sample/*.log
+testdata/tf_sample/*.dot
+
+# OS
+.DS_Store

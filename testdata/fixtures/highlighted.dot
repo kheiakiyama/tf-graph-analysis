@@ -1,0 +1,24 @@
+digraph G {
+  rankdir = "TB";
+  compound = "true";
+  node [fontname="sans-serif", fontsize=10, shape="box"];
+  edge [fontname="sans-serif", fontsize=9];
+  "[root] provider[\\\"terraform.io/builtin/terraform\\\"]" [label="provider[\"terraform.io/builtin/terraform\"]\\n(100ms)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] terraform_data.leaf (expand)" [label="terraform_data.leaf\\n(0s)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] terraform_data.slow_step_1 (expand)" [label="terraform_data.slow_step_1\\n(1ms)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] provider[\\\"terraform.io/builtin/terraform\\\"] (close)" [label="provider[\"terraform.io/builtin/terraform\"]\\n(100ms)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] root" [label="root\\n(0s)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] terraform_data.middle_fast (expand)" [label="terraform_data.middle_fast\\n(1ms)", color="#1976d2"];
+  "[root] terraform_data.root_a (expand)" [label="terraform_data.root_a\\n(2ms)", color="#1976d2"];
+  "[root] terraform_data.root_b (expand)" [label="terraform_data.root_b\\n(2ms)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] terraform_data.slow_step_2 (expand)" [label="terraform_data.slow_step_2\\n(1ms)", color="#d9381e", fillcolor="#ffebee", style="filled,bold", penwidth=2.0];
+  "[root] terraform_data.leaf (expand)" -> "[root] provider[\\\"terraform.io/builtin/terraform\\\"] (close)" [color="#d9381e", penwidth=2.5, style="bold"];
+  "[root] provider[\\\"terraform.io/builtin/terraform\\\"] (close)" -> "[root] root" [color="#cccccc"];
+  "[root] terraform_data.middle_fast (expand)" -> "[root] terraform_data.leaf (expand)" [color="#cccccc"];
+  "[root] terraform_data.slow_step_2 (expand)" -> "[root] terraform_data.leaf (expand)" [color="#d9381e", penwidth=2.5, style="bold"];
+  "[root] terraform_data.root_a (expand)" -> "[root] terraform_data.middle_fast (expand)" [color="#cccccc"];
+  "[root] provider[\\\"terraform.io/builtin/terraform\\\"]" -> "[root] terraform_data.root_a (expand)" [color="#cccccc"];
+  "[root] provider[\\\"terraform.io/builtin/terraform\\\"]" -> "[root] terraform_data.root_b (expand)" [color="#d9381e", penwidth=2.5, style="bold"];
+  "[root] terraform_data.root_b (expand)" -> "[root] terraform_data.slow_step_1 (expand)" [color="#d9381e", penwidth=2.5, style="bold"];
+  "[root] terraform_data.slow_step_1 (expand)" -> "[root] terraform_data.slow_step_2 (expand)" [color="#d9381e", penwidth=2.5, style="bold"];
+}

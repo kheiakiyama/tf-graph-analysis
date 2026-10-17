@@ -1,0 +1,778 @@
+2026-10-18T06:55:49.740+0900 [INFO]  Terraform version: 1.15.1
+2026-10-18T06:55:49.740+0900 [DEBUG] using github.com/hashicorp/go-tfe v1.94.0
+2026-10-18T06:55:49.740+0900 [DEBUG] using github.com/hashicorp/hcl/v2 v2.24.0
+2026-10-18T06:55:49.740+0900 [DEBUG] using github.com/hashicorp/terraform-svchost v0.2.1
+2026-10-18T06:55:49.740+0900 [DEBUG] using github.com/zclconf/go-cty v1.18.0
+2026-10-18T06:55:49.740+0900 [INFO]  Go runtime version: go1.25.8
+2026-10-18T06:55:49.740+0900 [INFO]  CLI args: []string{"terraform", "-chdir=testdata/tf_sample", "plan", "-no-color"}
+2026-10-18T06:55:49.740+0900 [TRACE] Stdout is not a terminal
+2026-10-18T06:55:49.740+0900 [TRACE] Stderr is not a terminal
+2026-10-18T06:55:49.740+0900 [TRACE] Stdin is a terminal
+2026-10-18T06:55:49.740+0900 [DEBUG] Attempting to open CLI config file: /Users/kheiakiyama/.terraformrc
+2026-10-18T06:55:49.740+0900 [DEBUG] File doesn't exist, but doesn't need to. Ignoring.
+2026-10-18T06:55:49.740+0900 [INFO]  Loading CLI configuration from /Users/kheiakiyama/.terraform.d/credentials.tfrc.json
+2026-10-18T06:55:49.741+0900 [DEBUG] ignoring non-existing provider search directory terraform.d/plugins
+2026-10-18T06:55:49.741+0900 [DEBUG] ignoring non-existing provider search directory /Users/kheiakiyama/.terraform.d/plugins
+2026-10-18T06:55:49.741+0900 [DEBUG] ignoring non-existing provider search directory /Users/kheiakiyama/Library/Application Support/io.terraform/plugins
+2026-10-18T06:55:49.741+0900 [DEBUG] ignoring non-existing provider search directory /Library/Application Support/io.terraform/plugins
+2026-10-18T06:55:49.742+0900 [INFO]  CLI command args: []string{"plan", "-no-color"}
+2026-10-18T06:55:49.768+0900 [TRACE] Meta.Backend: no config given or present on disk, so returning nil config
+2026-10-18T06:55:49.769+0900 [TRACE] Meta.Backend: backend has not previously been initialized in this working directory
+2026-10-18T06:55:49.769+0900 [TRACE] Meta.Backend: using default local state only (no backend configuration, and no existing initialized backend)
+2026-10-18T06:55:49.769+0900 [TRACE] Meta.Backend: instantiated backend of type <nil>
+2026-10-18T06:55:49.769+0900 [DEBUG] checking for provisioner in "."
+2026-10-18T06:55:49.769+0900 [DEBUG] checking for provisioner in "/opt/homebrew/bin"
+2026-10-18T06:55:49.769+0900 [TRACE] Meta.Backend: backend <nil> does not support operations, so wrapping it in a local backend
+2026-10-18T06:55:49.771+0900 [INFO]  backend/local: starting Plan operation
+2026-10-18T06:55:49.771+0900 [TRACE] backend/local: requesting state manager for workspace "default"
+2026-10-18T06:55:49.771+0900 [TRACE] backend/local: state manager for workspace "default" will:
+ - read initial snapshot from terraform.tfstate
+ - write new snapshots to terraform.tfstate
+ - create any backup at terraform.tfstate.backup
+2026-10-18T06:55:49.771+0900 [TRACE] backend/local: requesting state lock for workspace "default"
+2026-10-18T06:55:49.773+0900 [TRACE] statemgr.Filesystem: preparing to manage state snapshots at terraform.tfstate
+2026-10-18T06:55:49.775+0900 [TRACE] statemgr.Filesystem: existing snapshot has lineage "25351dc3-5764-f3d6-5802-236386bda50e" serial 6
+2026-10-18T06:55:49.775+0900 [TRACE] statemgr.Filesystem: locking terraform.tfstate using fcntl flock
+2026-10-18T06:55:49.775+0900 [TRACE] statemgr.Filesystem: writing lock metadata to .terraform.tfstate.lock.info
+2026-10-18T06:55:49.775+0900 [TRACE] backend/local: reading remote state for workspace "default"
+2026-10-18T06:55:49.775+0900 [TRACE] statemgr.Filesystem: reading latest snapshot from terraform.tfstate
+2026-10-18T06:55:49.775+0900 [TRACE] statemgr.Filesystem: read snapshot with lineage "25351dc3-5764-f3d6-5802-236386bda50e" serial 6
+2026-10-18T06:55:49.775+0900 [TRACE] backend/local: populating backendrun.LocalRun for current working directory
+2026-10-18T06:55:49.776+0900 [TRACE] terraform.NewContext: starting
+2026-10-18T06:55:49.776+0900 [TRACE] terraform.NewContext: complete
+2026-10-18T06:55:49.776+0900 [TRACE] terraform.NewContext: starting
+2026-10-18T06:55:49.776+0900 [TRACE] terraform.NewContext: complete
+2026-10-18T06:55:49.776+0900 [TRACE] building graph for terraform dependencies
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.ModuleTransformer
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.LocalTransformer
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.TransformFilter
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.variableValidationTransformer
+2026-10-18T06:55:49.776+0900 [TRACE] variableValidationTransformer: adding validation nodes for any existing variable evaluation nodes
+2026-10-18T06:55:49.776+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.777+0900 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2026-10-18T06:55:49.777+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  ------
+2026-10-18T06:55:49.777+0900 [DEBUG] Starting graph walk: walkInit
+2026-10-18T06:55:49.779+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.779+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.779+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.779+0900 [TRACE] backend/local: requesting interactive input, if necessary
+2026-10-18T06:55:49.779+0900 [TRACE] LoadSchemas: retrieving schema for provider type "terraform.io/builtin/terraform"
+2026-10-18T06:55:49.779+0900 [TRACE] terraform.contextPlugins: Initializing provider "terraform.io/builtin/terraform" to read its schema
+2026-10-18T06:55:49.779+0900 [TRACE] Context.Input: Prompting for provider arguments
+2026-10-18T06:55:49.779+0900 [TRACE] Context.Input: Provider provider.terraform implied by resource block at main.tf:9,1-35
+2026-10-18T06:55:49.779+0900 [TRACE] Context.Input: Input for provider.terraform: map[string]cty.Value{}
+2026-10-18T06:55:49.779+0900 [TRACE] backend/local: running validation operation
+2026-10-18T06:55:49.779+0900 [TRACE] LoadSchemas: retrieving schema for provider type "terraform.io/builtin/terraform"
+2026-10-18T06:55:49.779+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.779+0900 [DEBUG] Building and walking validate graph
+2026-10-18T06:55:49.779+0900 [TRACE] building graph for walkValidate
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] ConfigTransformer: Starting for path:
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.ActionTriggerConfigTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.ActionInvokePlanTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.variableValidationTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] variableValidationTransformer: adding validation nodes for any existing variable evaluation nodes
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.LocalTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.OutputTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.checkTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.StateTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] StateTransformer: pointless no-op call, creating no nodes at all
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.slow_step_2" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:21, Column:1, Byte:333}, End:hcl.Pos{Line:21, Column:40, Byte:372}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.slow_step_2
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.leaf" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:25, Column:1, Byte:422}, End:hcl.Pos{Line:25, Column:33, Byte:454}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.leaf
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.root_a" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:5, Column:1, Byte:47}, End:hcl.Pos{Line:5, Column:35, Byte:81}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.root_a
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.root_b" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:9, Column:1, Byte:106}, End:hcl.Pos{Line:9, Column:35, Byte:140}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.root_b
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.middle_fast" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:13, Column:1, Byte:165}, End:hcl.Pos{Line:13, Column:40, Byte:204}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.middle_fast
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.slow_step_1" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:17, Column:1, Byte:249}, End:hcl.Pos{Line:17, Column:40, Byte:288}}
+2026-10-18T06:55:49.779+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.slow_step_1
+2026-10-18T06:55:49.779+0900 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2026-10-18T06:55:49.779+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.externalProviderTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.externalProviderTransformer with new graph:
+  terraform_data.leaf - *terraform.NodeValidatableResource
+  terraform_data.middle_fast - *terraform.NodeValidatableResource
+  terraform_data.root_a - *terraform.NodeValidatableResource
+  terraform_data.root_b - *terraform.NodeValidatableResource
+  terraform_data.slow_step_1 - *terraform.NodeValidatableResource
+  terraform_data.slow_step_2 - *terraform.NodeValidatableResource
+  ------
+2026-10-18T06:55:49.779+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2026-10-18T06:55:49.779+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer (no changes)
+2026-10-18T06:55:49.779+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2026-10-18T06:55:49.779+0900 [DEBUG] adding implicit provider configuration provider["terraform.io/builtin/terraform"], implied first by terraform_data.slow_step_1
+2026-10-18T06:55:49.780+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer with new graph:
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.leaf - *terraform.NodeValidatableResource
+  terraform_data.middle_fast - *terraform.NodeValidatableResource
+  terraform_data.root_a - *terraform.NodeValidatableResource
+  terraform_data.root_b - *terraform.NodeValidatableResource
+  terraform_data.slow_step_1 - *terraform.NodeValidatableResource
+  terraform_data.slow_step_2 - *terraform.NodeValidatableResource
+  ------
+2026-10-18T06:55:49.780+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.middle_fast
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.middle_fast" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.slow_step_1
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.slow_step_1" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.slow_step_2
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.slow_step_2" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.leaf
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.leaf" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.root_a
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.root_a" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.root_b
+2026-10-18T06:55:49.780+0900 [DEBUG] ProviderTransformer: "terraform_data.root_b" (*terraform.NodeValidatableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.leaf - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.middle_fast - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.root_a - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.root_b - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.slow_step_1 - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.slow_step_2 - *terraform.NodeValidatableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  ------
+2026-10-18T06:55:49.780+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.slow_step_2
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.leaf
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.root_a
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.root_b
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.middle_fast
+2026-10-18T06:55:49.780+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.780+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.slow_step_1
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.ExternalReferenceTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.middle_fast" references: [terraform_data.root_a]
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_1" references: [terraform_data.root_b]
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_2" references: [terraform_data.slow_step_1]
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.leaf" references: [terraform_data.middle_fast terraform_data.slow_step_2]
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_a" references: []
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "provider[\"terraform.io/builtin/terraform\"]" references: []
+2026-10-18T06:55:49.780+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_b" references: []
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.attachDataResourceDependsOnTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.QueryTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.leaf" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.root_a" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.root_b" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.middle_fast" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.slow_step_1" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] ForcedCBDTransformer: "terraform_data.slow_step_2" (*terraform.NodeValidatableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.ephemeralResourceCloseTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2026-10-18T06:55:49.780+0900 [TRACE] Completed graph transform:
+provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+provider["terraform.io/builtin/terraform"] (close) - *terraform.graphNodeCloseProvider
+  terraform_data.leaf - *terraform.NodeValidatableResource
+root - *terraform.nodeCloseModule
+  provider["terraform.io/builtin/terraform"] (close) - *terraform.graphNodeCloseProvider
+terraform_data.leaf - *terraform.NodeValidatableResource
+  terraform_data.middle_fast - *terraform.NodeValidatableResource
+  terraform_data.slow_step_2 - *terraform.NodeValidatableResource
+terraform_data.middle_fast - *terraform.NodeValidatableResource
+  terraform_data.root_a - *terraform.NodeValidatableResource
+terraform_data.root_a - *terraform.NodeValidatableResource
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+terraform_data.root_b - *terraform.NodeValidatableResource
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+terraform_data.slow_step_1 - *terraform.NodeValidatableResource
+  terraform_data.root_b - *terraform.NodeValidatableResource
+terraform_data.slow_step_2 - *terraform.NodeValidatableResource
+  terraform_data.slow_step_1 - *terraform.NodeValidatableResource
+  ------
+2026-10-18T06:55:49.780+0900 [DEBUG] Starting graph walk: walkValidate
+2026-10-18T06:55:49.780+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": starting visit (*terraform.NodeApplyableProvider)
+2026-10-18T06:55:49.780+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": belongs to
+2026-10-18T06:55:49.781+0900 [TRACE] BuiltinEvalContext: Initialized "provider[\"terraform.io/builtin/terraform\"]" provider for provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.781+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.781+0900 [TRACE] NodeApplyableProvider: validating configuration for provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.781+0900 [TRACE] buildProviderConfig for provider["terraform.io/builtin/terraform"]: no configuration at all
+2026-10-18T06:55:49.781+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": visit complete
+2026-10-18T06:55:49.781+0900 [TRACE] vertex "terraform_data.root_a": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.781+0900 [TRACE] vertex "terraform_data.root_b": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.782+0900 [TRACE] vertex "terraform_data.root_a": belongs to
+2026-10-18T06:55:49.782+0900 [TRACE] vertex "terraform_data.root_b": belongs to
+2026-10-18T06:55:49.783+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.783+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.783+0900 [TRACE] Validating config for "terraform_data.root_b"
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.root_b": visit complete
+2026-10-18T06:55:49.783+0900 [TRACE] Validating config for "terraform_data.root_a"
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.root_a": visit complete
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.slow_step_1": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.slow_step_1": belongs to
+2026-10-18T06:55:49.783+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.middle_fast": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.783+0900 [TRACE] vertex "terraform_data.middle_fast": belongs to
+2026-10-18T06:55:49.783+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] Validating config for "terraform_data.slow_step_1"
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.slow_step_1": visit complete
+2026-10-18T06:55:49.784+0900 [TRACE] Validating config for "terraform_data.middle_fast"
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.middle_fast": visit complete
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.slow_step_2": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.slow_step_2": belongs to
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] Validating config for "terraform_data.slow_step_2"
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.slow_step_2": visit complete
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.leaf": starting visit (*terraform.NodeValidatableResource)
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.leaf": belongs to
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.784+0900 [TRACE] Validating config for "terraform_data.leaf"
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "terraform_data.leaf": visit complete
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": starting visit (*terraform.graphNodeCloseProvider)
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": does not belong to any module instance
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": visit complete
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "root": starting visit (*terraform.nodeCloseModule)
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.784+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.784+0900 [INFO]  backend/local: plan calling Plan
+2026-10-18T06:55:49.785+0900 [DEBUG] Building and walking plan graph for NormalMode
+2026-10-18T06:55:49.785+0900 [TRACE] building graph for walkPlan
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] ConfigTransformer: Starting for path:
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.ActionTriggerConfigTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.ActionInvokePlanTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.variableValidationTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] variableValidationTransformer: adding validation nodes for any existing variable evaluation nodes
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.LocalTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.OutputTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.checkTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.StateTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] StateTransformer: creating nodes for deposed instance objects only
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2026-10-18T06:55:49.785+0900 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.slow_step_1 (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:17, Column:1, Byte:249}, End:hcl.Pos{Line:17, Column:40, Byte:288}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.slow_step_1 (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.slow_step_2 (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:21, Column:1, Byte:333}, End:hcl.Pos{Line:21, Column:40, Byte:372}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.slow_step_2 (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.leaf (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:25, Column:1, Byte:422}, End:hcl.Pos{Line:25, Column:33, Byte:454}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.leaf (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.root_a (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:5, Column:1, Byte:47}, End:hcl.Pos{Line:5, Column:35, Byte:81}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.root_a (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.root_b (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:9, Column:1, Byte:106}, End:hcl.Pos{Line:9, Column:35, Byte:140}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.root_b (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching to "terraform_data.middle_fast (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:13, Column:1, Byte:165}, End:hcl.Pos{Line:13, Column:40, Byte:204}}
+2026-10-18T06:55:49.786+0900 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to terraform_data.middle_fast (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.externalProviderTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.externalProviderTransformer with new graph:
+  terraform_data.leaf (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.middle_fast (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_a (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_b (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_1 (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_2 (expand) - *terraform.nodeExpandPlannableResource
+  ------
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer (no changes)
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2026-10-18T06:55:49.786+0900 [DEBUG] adding implicit provider configuration provider["terraform.io/builtin/terraform"], implied first by terraform_data.leaf (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer with new graph:
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.leaf (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.middle_fast (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_a (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_b (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_1 (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_2 (expand) - *terraform.nodeExpandPlannableResource
+  ------
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.slow_step_1 (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.slow_step_1 (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.slow_step_2 (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.slow_step_2 (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.leaf (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.leaf (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.root_a (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.root_a (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.root_b (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.root_b (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] ProviderTransformer: exact match for provider["terraform.io/builtin/terraform"] serving terraform_data.middle_fast (expand)
+2026-10-18T06:55:49.786+0900 [DEBUG] ProviderTransformer: "terraform_data.middle_fast (expand)" (*terraform.nodeExpandPlannableResource) needs provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.leaf (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.middle_fast (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.root_a (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.root_b (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.slow_step_1 (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  terraform_data.slow_step_2 (expand) - *terraform.nodeExpandPlannableResource
+    provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+  ------
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.slow_step_1 (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.slow_step_2 (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.leaf (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.root_a (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.root_b (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] AttachSchemaTransformer: attaching resource schema to terraform_data.middle_fast (expand)
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ExternalReferenceTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_b (expand)" references: []
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.middle_fast (expand)" references: [terraform_data.root_a (expand)]
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_1 (expand)" references: [terraform_data.root_b (expand)]
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_2 (expand)" references: [terraform_data.slow_step_1 (expand)]
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.leaf (expand)" references: [terraform_data.middle_fast (expand) terraform_data.slow_step_2 (expand)]
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_a (expand)" references: []
+2026-10-18T06:55:49.786+0900 [DEBUG] ReferenceTransformer: "provider[\"terraform.io/builtin/terraform\"]" references: []
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.middle_fast (expand) depends on [terraform_data.root_a]
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.slow_step_1 (expand) depends on [terraform_data.root_b]
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.slow_step_2 (expand) depends on [terraform_data.root_b terraform_data.slow_step_1]
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.leaf (expand) depends on [terraform_data.middle_fast terraform_data.root_a terraform_data.root_b terraform_data.slow_step_1 terraform_data.slow_step_2]
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.root_a (expand) depends on []
+2026-10-18T06:55:49.786+0900 [TRACE] AttachDependenciesTransformer: terraform_data.root_b (expand) depends on []
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.attachDataResourceDependsOnTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.QueryTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.root_b (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.middle_fast (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.slow_step_1 (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.slow_step_2 (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.leaf (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] ForcedCBDTransformer: "terraform_data.root_a (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendant, so skipping
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ephemeralResourceCloseTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] Completed graph transform:
+provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+provider["terraform.io/builtin/terraform"] (close) - *terraform.graphNodeCloseProvider
+  terraform_data.leaf (expand) - *terraform.nodeExpandPlannableResource
+root - *terraform.nodeCloseModule
+  provider["terraform.io/builtin/terraform"] (close) - *terraform.graphNodeCloseProvider
+terraform_data.leaf (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.middle_fast (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_2 (expand) - *terraform.nodeExpandPlannableResource
+terraform_data.middle_fast (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_a (expand) - *terraform.nodeExpandPlannableResource
+terraform_data.root_a (expand) - *terraform.nodeExpandPlannableResource
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+terraform_data.root_b (expand) - *terraform.nodeExpandPlannableResource
+  provider["terraform.io/builtin/terraform"] - *terraform.NodeApplyableProvider
+terraform_data.slow_step_1 (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.root_b (expand) - *terraform.nodeExpandPlannableResource
+terraform_data.slow_step_2 (expand) - *terraform.nodeExpandPlannableResource
+  terraform_data.slow_step_1 (expand) - *terraform.nodeExpandPlannableResource
+  ------
+2026-10-18T06:55:49.786+0900 [DEBUG] Starting graph walk: walkPlan
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": starting visit (*terraform.NodeApplyableProvider)
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": belongs to
+2026-10-18T06:55:49.786+0900 [TRACE] BuiltinEvalContext: Initialized "provider[\"terraform.io/builtin/terraform\"]" provider for provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.786+0900 [TRACE] NodeApplyableProvider: configuring provider["terraform.io/builtin/terraform"]
+2026-10-18T06:55:49.786+0900 [TRACE] buildProviderConfig for provider["terraform.io/builtin/terraform"]: no configuration at all
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"]": visit complete
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "terraform_data.root_a (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "terraform_data.root_a (expand)": does not belong to any module instance
+2026-10-18T06:55:49.786+0900 [TRACE] vertex "terraform_data.root_a (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.786+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.786+0900 [TRACE] ResourceCountTransformer: adding terraform_data.root_a as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b (expand)": does not belong to any module instance
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.787+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_a" references: []
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.root_a - *terraform.NodePlannableResourceInstance
+terraform_data.root_a - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_a (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] ResourceCountTransformer: adding terraform_data.root_b as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_a": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_a": belongs to
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.787+0900 [DEBUG] ReferenceTransformer: "terraform_data.root_b" references: []
+2026-10-18T06:55:49.787+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.787+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.root_b - *terraform.NodePlannableResourceInstance
+terraform_data.root_b - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.787+0900 [TRACE] vertex "terraform_data.root_b": belongs to
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.787+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.787+0900 [TRACE] upgradeResourceState: schema version of terraform_data.root_b is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.787+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_a"}
+2026-10-18T06:55:49.787+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_a"}
+2026-10-18T06:55:49.787+0900 [TRACE] upgradeResourceState: schema version of terraform_data.root_a is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+terraform_data.root_b: Refreshing state... [id=e1449be6-2816-a917-7e30-798b1902bb5c]
+terraform_data.root_a: Refreshing state... [id=c018d815-6de1-52d6-4e0a-95e12dc28359]
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_a
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_b
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.787+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] Re-validating config for "terraform_data.root_a"
+2026-10-18T06:55:49.788+0900 [TRACE] Re-validating config for "terraform_data.root_b"
+2026-10-18T06:55:49.788+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.root_a
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.root_a
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_a
+2026-10-18T06:55:49.788+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.root_b
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.root_b
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.root_b
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_a": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_b": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_a (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_a (expand)": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_b (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_b (expand)": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] ResourceCountTransformer: adding terraform_data.slow_step_1 as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.788+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_1" references: []
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.slow_step_1 - *terraform.NodePlannableResourceInstance
+terraform_data.slow_step_1 - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] ResourceCountTransformer: adding terraform_data.middle_fast as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1": belongs to
+2026-10-18T06:55:49.788+0900 [DEBUG] ReferenceTransformer: "terraform_data.middle_fast" references: []
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.middle_fast - *terraform.NodePlannableResourceInstance
+terraform_data.middle_fast - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast": belongs to
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_a"}
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.788+0900 [TRACE] upgradeResourceState: schema version of terraform_data.slow_step_1 is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_a"}
+2026-10-18T06:55:49.788+0900 [TRACE] upgradeResourceState: schema version of terraform_data.middle_fast is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.middle_fast
+terraform_data.slow_step_1: Refreshing state... [id=ba45f024-ac81-6477-0720-08bdb43596e1]
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+terraform_data.middle_fast: Refreshing state... [id=d2d29fe6-90da-fc43-d2aa-3b9db73cf661]
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] Re-validating config for "terraform_data.middle_fast"
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] Re-validating config for "terraform_data.slow_step_1"
+2026-10-18T06:55:49.788+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.middle_fast
+2026-10-18T06:55:49.788+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_1
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_1 (expand)": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] ResourceCountTransformer: adding terraform_data.slow_step_2 as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.788+0900 [DEBUG] ReferenceTransformer: "terraform_data.slow_step_2" references: []
+2026-10-18T06:55:49.788+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.788+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.slow_step_2 - *terraform.NodePlannableResourceInstance
+terraform_data.slow_step_2 - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.middle_fast (expand)": visit complete
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.slow_step_2": belongs to
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.788+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":"string", "value":"root_b"}
+2026-10-18T06:55:49.788+0900 [TRACE] upgradeResourceState: schema version of terraform_data.slow_step_2 is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+terraform_data.slow_step_2: Refreshing state... [id=4741042a-9d4b-02af-c1ca-4b0ba4f115ed]
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_2
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.788+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] Re-validating config for "terraform_data.slow_step_2"
+2026-10-18T06:55:49.789+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.slow_step_2
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.slow_step_2
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.slow_step_2
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.slow_step_2": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.slow_step_2 (expand)": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": does not belong to any module instance
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": expanding dynamic subgraph
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2026-10-18T06:55:49.789+0900 [TRACE] ResourceCountTransformer: adding terraform_data.leaf as *terraform.NodePlannableResourceInstance
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.AttachResourceState for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2026-10-18T06:55:49.789+0900 [DEBUG] ReferenceTransformer: "terraform_data.leaf" references: []
+2026-10-18T06:55:49.789+0900 [TRACE] Executing graph transform *terraform.RootTransformer
+2026-10-18T06:55:49.789+0900 [TRACE] Completed graph transform:
+root - terraform.graphNodeRoot
+  terraform_data.leaf - *terraform.NodePlannableResourceInstance
+terraform_data.leaf - *terraform.NodePlannableResourceInstance
+  ------
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": entering dynamic subgraph
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf": starting visit (*terraform.NodePlannableResourceInstance)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf": belongs to
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] readResourceInstanceState: reading state for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":[]interface {}{"tuple", []interface {}{"string", "string"}}, "value":[]interface {}{"root_a", "root_b"}}
+2026-10-18T06:55:49.789+0900 [DEBUG] UpgradeResourceState: ignoring dynamic block: map[string]interface {}{"type":[]interface {}{"tuple", []interface {}{"string", "string"}}, "value":[]interface {}{"root_a", "root_b"}}
+2026-10-18T06:55:49.789+0900 [TRACE] upgradeResourceState: schema version of terraform_data.leaf is still 0; calling provider "terraform" for any other minor fixups
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to prevRunState for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.refresh for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+terraform_data.leaf: Refreshing state... [id=40fe5849-d1f4-dba0-b6a4-4606c7638b45]
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to refreshState for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] Re-validating config for "terraform_data.leaf"
+2026-10-18T06:55:49.789+0900 [TRACE] writeChange: recorded NoOp change for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState to workingState for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] NodeAbstractResourceInstance.writeResourceInstanceState: writing state object for terraform_data.leaf
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": starting visit (terraform.graphNodeRoot)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": dynamic subgraph completed successfully
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "terraform_data.leaf (expand)": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": starting visit (*terraform.graphNodeCloseProvider)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": does not belong to any module instance
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "provider[\"terraform.io/builtin/terraform\"] (close)": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": starting visit (*terraform.nodeCloseModule)
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": does not belong to any module instance
+2026-10-18T06:55:49.789+0900 [TRACE] vertex "root": visit complete
+2026-10-18T06:55:49.789+0900 [TRACE] LoadSchemas: retrieving schema for provider type "terraform.io/builtin/terraform"
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [TRACE] Plan is complete
+2026-10-18T06:55:49.789+0900 [TRACE] Plan is not applyable
+2026-10-18T06:55:49.789+0900 [TRACE] LoadSchemas: retrieving schema for provider type "terraform.io/builtin/terraform"
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+2026-10-18T06:55:49.789+0900 [DEBUG] no planned changes, skipping apply graph check
+2026-10-18T06:55:49.789+0900 [INFO]  backend/local: plan operation completed
+2026-10-18T06:55:49.789+0900 [TRACE] LoadSchemas: retrieving schema for provider type "terraform.io/builtin/terraform"
+2026-10-18T06:55:49.789+0900 [TRACE] terraform.contextPlugins: Schema for provider "terraform.io/builtin/terraform" is in the global cache
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+2026-10-18T06:55:49.790+0900 [TRACE] statemgr.Filesystem: removing lock metadata file .terraform.tfstate.lock.info
+2026-10-18T06:55:49.790+0900 [TRACE] statemgr.Filesystem: unlocking terraform.tfstate using fcntl flock

@@ -5,8 +5,51 @@ terraform を利用していて痛みに感じることの一つが、管理リ�
 これは背景として、terraform では依存関係があるリソース間でシーケンシャルな処理を実行する仕組みになっている  
 このツールは実際の terraform 実行時間をもとにパフォーマンスのボトルネックとなるグラフのクリティカルパスを可視化することで、的確なリソースの分割をサポートできるのではないかと考えた  
 
-## How it work
-TBD
+## How it works
+
+1. **`terraform graph -type=plan` の DOT ファイルをパース**: Terraform Core が解釈したリソース間の DAG（依存グラフ）を構築します。
+2. **`TF_LOG=TRACE` ログから所要時間を抽出**: 各リソースの `vertex "...": starting visit` から `visit complete` までの実測ミリ秒（またはUI完了ログ）をパースして各ノードの重み（Duration）として付与します。
+3. **クリティカルパス分析（CPM: Critical Path Method）の実行**:
+   - トポロジカルソート & 動的計画法（Earliest Start / Finish）により全体の最長経路を計算。
+   - バックトラックによって全体のボトルネックとなっている直列リソース列（クリティカルパス）を特定。
+   - 各リソースの Slack（余裕時間）を算出。
+4. **多彩な出力形式**:
+   - **コンソール表示**: クリティカルパスと最も時間のかかっているリソースのランキング。
+   - **ハイライト付き DOT**: クリティカルパスを赤くハイライトした Graphviz DOT ファイル（SVG/PNG化可能）。
+   - **Chrome Trace Event JSON**: [ui.perfetto.dev](https://ui.perfetto.dev) や `chrome://tracing` でドラッグ＆ドロップして並列実行と直列待ちをガントチャート確認可能。
+
+## Quick Start
+
+### インストール・ビルド
+```bash
+go build -o tf-graph-analysis ./cmd/tf-graph-analysis
+```
+
+### データの準備
+対象の Terraform ディレクトリで以下を実行してデータを出力します：
+
+```bash
+# 1. 依存グラフの出力 (DOT形式)
+terraform graph -type=plan > graph.dot
+
+# 2. 実行ログの出力 (TRACEログ)
+TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1
+```
+
+### 解析の実行
+```bash
+# 基本的なコンソールサマリー表示
+./tf-graph-analysis -dot graph.dot -log tf_plan.log
+
+# ハイライト付き DOT と Chrome Tracing JSON を同時出力
+./tf-graph-analysis \
+  -dot graph.dot \
+  -log tf_plan.log \
+  -output-dot highlighted.dot \
+  -output-trace trace.json
+```
+
+---
 
 ## Plan by Gemini
 

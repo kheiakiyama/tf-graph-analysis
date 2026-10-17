@@ -1,0 +1,22 @@
+digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] provider[\"terraform.io/builtin/terraform\"]" [label = "provider[\"terraform.io/builtin/terraform\"]", shape = "diamond"]
+		"[root] terraform_data.leaf (expand)" [label = "terraform_data.leaf", shape = "box"]
+		"[root] terraform_data.middle_fast (expand)" [label = "terraform_data.middle_fast", shape = "box"]
+		"[root] terraform_data.root_a (expand)" [label = "terraform_data.root_a", shape = "box"]
+		"[root] terraform_data.root_b (expand)" [label = "terraform_data.root_b", shape = "box"]
+		"[root] terraform_data.slow_step_1 (expand)" [label = "terraform_data.slow_step_1", shape = "box"]
+		"[root] terraform_data.slow_step_2 (expand)" [label = "terraform_data.slow_step_2", shape = "box"]
+		"[root] provider[\"terraform.io/builtin/terraform\"] (close)" -> "[root] terraform_data.leaf (expand)"
+		"[root] root" -> "[root] provider[\"terraform.io/builtin/terraform\"] (close)"
+		"[root] terraform_data.leaf (expand)" -> "[root] terraform_data.middle_fast (expand)"
+		"[root] terraform_data.leaf (expand)" -> "[root] terraform_data.slow_step_2 (expand)"
+		"[root] terraform_data.middle_fast (expand)" -> "[root] terraform_data.root_a (expand)"
+		"[root] terraform_data.root_a (expand)" -> "[root] provider[\"terraform.io/builtin/terraform\"]"
+		"[root] terraform_data.root_b (expand)" -> "[root] provider[\"terraform.io/builtin/terraform\"]"
+		"[root] terraform_data.slow_step_1 (expand)" -> "[root] terraform_data.root_b (expand)"
+		"[root] terraform_data.slow_step_2 (expand)" -> "[root] terraform_data.slow_step_1 (expand)"
+	}
+}
