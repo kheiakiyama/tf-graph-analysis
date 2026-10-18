@@ -23,8 +23,10 @@ var (
 	// Matches: 2026-10-18T06:55:49.788+0900 [TRACE] vertex "terraform_data.root_a": visit complete
 	traceEndRegex = regexp.MustCompile(`^(\S+)\s+\[TRACE\]\s+vertex\s+"([^"]+)":\s+visit complete`)
 
-	// Matches UI lines like: aws_instance.web: Creation complete after 15s [id=...]
-	uiCompleteRegex = regexp.MustCompile(`^(\S+):\s+(?:Creation|Modifications|Destruction|Read)\s+complete after\s+(\d+[smh\.]+)`)
+	// Matches UI lines like:
+	//   aws_instance.web: Creation complete after 15s [id=...]
+	//   data.azurerm_subscription.current: Refresh complete after 1s [id=...]
+	uiCompleteRegex = regexp.MustCompile(`^(\S+):\s+(?:Creation|Modifications|Destruction|Read|Refresh)\s+complete after\s+(\d+[smh\.]+)`)
 )
 
 // ResourceTiming holds timing data for a specific resource.

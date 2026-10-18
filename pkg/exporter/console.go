@@ -20,8 +20,8 @@ func PrintConsoleReport(w io.Writer, res *model.AnalysisResult) {
 	fmt.Fprintln(w, "--------------------------------------------------------------------------------")
 
 	fmt.Fprintln(w, "\n[ Critical Path (Bottleneck Chain) ]")
-	fmt.Fprintf(w, "%-4s | %-45s | %-12s | %-8s | %-12s\n", "Step", "Resource Name", "Duration", "Share", "Offset")
-	fmt.Fprintln(w, strings.Repeat("-", 90))
+	fmt.Fprintf(w, "%-4s | %-60s | %-12s | %-8s | %-12s\n", "Step", "Resource Name", "Duration", "Share", "Offset")
+	fmt.Fprintln(w, strings.Repeat("-", 105))
 
 	var critTotal time.Duration
 	for _, n := range res.CriticalPath {
@@ -33,12 +33,12 @@ func PrintConsoleReport(w io.Writer, res *model.AnalysisResult) {
 		if res.TotalDuration > 0 {
 			pct = (float64(n.Duration) / float64(res.TotalDuration)) * 100
 		}
-		name := truncate(n.Name, 45)
-		fmt.Fprintf(w, "%-4d | %-45s | %-12v | %6.1f%% | %-12v\n",
+		name := truncate(n.Name, 60)
+		fmt.Fprintf(w, "%-4d | %-60s | %-12v | %6.1f%% | %-12v\n",
 			i+1, name, n.Duration, pct, n.EarliestStart)
 	}
 
-	fmt.Fprintln(w, strings.Repeat("-", 90))
+	fmt.Fprintln(w, strings.Repeat("-", 105))
 
 	// Top Slowest Resources
 	sortedByDuration := make([]*model.Node, len(res.AllNodes))
@@ -53,8 +53,8 @@ func PrintConsoleReport(w io.Writer, res *model.AnalysisResult) {
 	}
 
 	fmt.Fprintf(w, "\n[ Top %d Slowest Resources ]\n", topN)
-	fmt.Fprintf(w, "%-4s | %-45s | %-12s | %-10s | %-10s\n", "Rank", "Resource Name", "Duration", "On CritPath", "Slack")
-	fmt.Fprintln(w, strings.Repeat("-", 90))
+	fmt.Fprintf(w, "%-4s | %-60s | %-12s | %-10s | %-10s\n", "Rank", "Resource Name", "Duration", "On CritPath", "Slack")
+	fmt.Fprintln(w, strings.Repeat("-", 105))
 
 	for i := 0; i < topN; i++ {
 		n := sortedByDuration[i]
@@ -62,8 +62,8 @@ func PrintConsoleReport(w io.Writer, res *model.AnalysisResult) {
 		if n.IsCritical {
 			critMark = "YES (★)"
 		}
-		name := truncate(n.Name, 45)
-		fmt.Fprintf(w, "%-4d | %-45s | %-12v | %-10s | %-10v\n",
+		name := truncate(n.Name, 60)
+		fmt.Fprintf(w, "%-4d | %-60s | %-12v | %-10s | %-10v\n",
 			i+1, name, n.Duration, critMark, n.Slack)
 	}
 	fmt.Fprintln(w, "================================================================================")

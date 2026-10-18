@@ -158,8 +158,26 @@ func CleanResourceName(raw string) (string, bool) {
 		return cleaned, false
 	}
 
-	// Check if this looks like a terraform resource: <type>.<name> or module.<mod>...
-	parts := strings.Split(s, ".")
+	// Remove any module.<name>. prefixes to examine the tail
+	tail := s
+	for strings.HasPrefix(tail, "module.") {
+		idx := strings.Index(tail[7:], ".")
+		if idx == -1 {
+			// Just "module.foo" - this is a module call node, not a resource
+			return s, false
+		}
+		tail = tail[7+idx+1:]
+	}
+
+	// Now tail is either:
+	// - "var.foo" or "output.bar" -> not a resource
+	// - "data.<type>.<name>" -> data resource
+	// - "<type>.<name>" -> managed resource
+	if strings.HasPrefix(tail, "var.") || strings.HasPrefix(tail, "output.") || strings.HasPrefix(tail, "local.") || strings.HasPrefix(tail, "meta.") {
+		return s, false
+	}
+
+	parts := strings.Split(tail, ".")
 	if len(parts) >= 2 {
 		return s, true
 	}

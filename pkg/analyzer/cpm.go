@@ -35,7 +35,11 @@ func (a *Analyzer) AttachTimings(g *model.Graph, timings map[string]*logparser.R
 			node.EndTime = timing.EndTime
 			node.HasTiming = true
 		} else {
-			node.Duration = a.opts.DefaultDuration
+			if node.IsResource {
+				node.Duration = a.opts.DefaultDuration
+			} else {
+				node.Duration = 0
+			}
 			node.HasTiming = false
 		}
 	}
