@@ -35,10 +35,16 @@ type htmlReportData struct {
 }
 
 // ExportHTMLReport writes a standalone, zero-external-dependency interactive HTML report.
-func ExportHTMLReport(w io.Writer, res *model.AnalysisResult) error {
+// Optional title can be passed to identify the environment/target.
+func ExportHTMLReport(w io.Writer, res *model.AnalysisResult, titleOpt ...string) error {
 	totalMs := res.TotalDuration.Milliseconds()
 	if totalMs == 0 && res.TotalDuration > 0 {
 		totalMs = 1
+	}
+
+	reportTitle := ""
+	if len(titleOpt) > 0 && titleOpt[0] != "" {
+		reportTitle = strings.TrimSpace(titleOpt[0])
 	}
 
 	// Prepare critical path data
@@ -108,18 +114,38 @@ func ExportHTMLReport(w io.Writer, res *model.AnalysisResult) error {
 	}
 
 	htmlContent := strings.Replace(htmlTemplate, "/*DATA_PLACEHOLDER*/", string(dataJSON), 1)
+
+	// Inject title
+	pageTitle := "Terraform Critical Path Report"
+	badgeHTML := ""
+	if reportTitle != "" {
+		safeTitle := htmlEscape(reportTitle)
+		pageTitle = safeTitle + " - Terraform Critical Path Report"
+		badgeHTML = fmt.Sprintf(`<span class="title-badge">%s</span>`, safeTitle)
+	}
+	htmlContent = strings.Replace(htmlContent, "/*TITLE_TAG_PLACEHOLDER*/", pageTitle, 1)
+	htmlContent = strings.Replace(htmlContent, "/*TITLE_BADGE_PLACEHOLDER*/", badgeHTML, 1)
+
 	_, err = io.WriteString(w, htmlContent)
 	return err
 }
 
+func htmlEscape(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, "\"", "&quot;")
+	return s
+}
+
 // ExportHTMLReportFile writes the HTML report to a file.
-func ExportHTMLReportFile(path string, res *model.AnalysisResult) error {
+func ExportHTMLReportFile(path string, res *model.AnalysisResult, titleOpt ...string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return ExportHTMLReport(f, res)
+	return ExportHTMLReport(f, res, titleOpt...)
 }
 
 const htmlTemplate = `<!DOCTYPE html>
@@ -127,7 +153,7 @@ const htmlTemplate = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terraform Critical Path Report</title>
+<title>/*TITLE_TAG_PLACEHOLDER*/</title>
 <style>
 :root {
   --bg-primary: #0f172a;
@@ -168,6 +194,18 @@ body {
   color: var(--text-secondary);
   font-size: 14px;
   margin-top: 4px;
+}
+.title-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  vertical-align: middle;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .metrics-grid {
@@ -356,8 +394,8 @@ tr:hover {
 <body>
 
 <div class="header">
-  <h1>⚡ Terraform Critical Path Report</h1>
-  <p>Local Standalone Performance Analysis (Zero External Network Requests)</p>
+  <h1>⚡ Terraform Critical Path Report/*TITLE_BADGE_PLACEHOLDER*/</h1>
+  <p>Standalone Performance Analysis (Zero External Network Requests)</p>
 </div>
 
 <div class="metrics-grid">

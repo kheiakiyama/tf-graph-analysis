@@ -12,8 +12,12 @@ import (
 
 // PrintMarkdownReport writes a formatted GitHub-flavored Markdown report.
 // Ideal for PR comments and GITHUB_STEP_SUMMARY.
-func PrintMarkdownReport(w io.Writer, res *model.AnalysisResult) {
-	fmt.Fprintln(w, "### 📊 Terraform Graph Critical Path Analysis")
+func PrintMarkdownReport(w io.Writer, res *model.AnalysisResult, titleOpt ...string) {
+	headerTitle := "### 📊 Terraform Graph Critical Path Analysis"
+	if len(titleOpt) > 0 && strings.TrimSpace(titleOpt[0]) != "" {
+		headerTitle = fmt.Sprintf("### 📊 Terraform Graph Critical Path Analysis (`%s`)", strings.TrimSpace(titleOpt[0]))
+	}
+	fmt.Fprintln(w, headerTitle)
 	fmt.Fprintln(w)
 	fmt.Fprintf(w, "- **Estimated Total Execution Time:** `%v`\n", res.TotalDuration)
 	fmt.Fprintf(w, "- **Total Graph Nodes:** `%d` (Critical Path Nodes: `%d`)\n", len(res.AllNodes), len(res.CriticalPath))
@@ -71,8 +75,8 @@ func PrintMarkdownReport(w io.Writer, res *model.AnalysisResult) {
 }
 
 // ExportMarkdownReportFile writes the Markdown report to a file path.
-func ExportMarkdownReportFile(filePath string, res *model.AnalysisResult) error {
+func ExportMarkdownReportFile(filePath string, res *model.AnalysisResult, titleOpt ...string) error {
 	var sb strings.Builder
-	PrintMarkdownReport(&sb, res)
+	PrintMarkdownReport(&sb, res, titleOpt...)
 	return os.WriteFile(filePath, []byte(sb.String()), 0644)
 }

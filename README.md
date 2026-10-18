@@ -269,6 +269,7 @@ Rank | Resource Name                                                | Duration  
 | `-log` | `""` | Path to Terraform log file with `TRACE` or `DEBUG` logs |
 | `-output-html` | `""` | Path to export standalone interactive HTML report |
 | `-output-markdown` | `""` | Path to export GitHub-flavored Markdown report (for PR comments) |
+| `-title` | `""` | Custom title/label displayed on reports (e.g. environment or workspace name) |
 | `-output-trace` | `""` | Path to export Chrome Trace Event Format JSON |
 | `-output-dot` | `""` | Path to export highlighted Graphviz DOT file |
 | `-default-duration` | `100ms` | Fallback duration for resources without log timing |

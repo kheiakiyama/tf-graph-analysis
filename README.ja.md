@@ -254,8 +254,9 @@ Rank | Resource Name                                                | Duration  
 | --- | --- | --- |
 | `-dot` | `""` | **(必須)** Terraform graph DOT ファイルのパス |
 | `-log` | `""` | `TRACE` または `DEBUG` ログファイルのパス |
-| `-output-html` | `""` | 完全ローカル動作の HTML レポート出力先パス |
+| `-output-html` | `""` | 完全オフライン動作の HTML レポート出力先パス |
 | `-output-markdown` | `""` | GitHub Flavored Markdown レポート出力先パス (PR コメント用) |
+| `-title` | `""` | レポートのタイトル/環境識別子（例: 環境名やワークスペース名） |
 | `-output-trace` | `""` | Chrome Trace Event Format JSON 出力先パス |
 | `-output-dot` | `""` | クリティカルパス強調 DOT ファイル出力先パス |
 | `-default-duration` | `100ms` | ログに所要時間がないリソースのデフォルト推定時間 |

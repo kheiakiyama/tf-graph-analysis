@@ -46,6 +46,10 @@ inputs:
     description: 'Custom artifact name. If omitted, automatically derived from workspace or working-directory.'
     required: false
     default: ''
+  title:
+    description: 'Custom title/label for reports. If omitted, automatically derived from workspace or working-directory.'
+    required: false
+    default: ''
   pr-comment:
     description: 'Automatically post or update analysis summary on Pull Requests.'
     required: false
@@ -198,16 +202,19 @@ runs:
           exit 1
         fi
 
-        # Determine target identifier for matrix/multi-target disambiguation
-        TARGET_ID="${{ inputs.tfc-workspace }}"
-        if [[ -z "$TARGET_ID" && "${{ inputs.working-directory }}" != "." ]]; then
-          TARGET_ID="${{ inputs.working-directory }}"
+        # Determine title / target identifier (priority: inputs.title > tfc-workspace > working-directory)
+        REPORT_TITLE="${{ inputs.title }}"
+        if [[ -z "$REPORT_TITLE" ]]; then
+          REPORT_TITLE="${{ inputs.tfc-workspace }}"
+        fi
+        if [[ -z "$REPORT_TITLE" && "${{ inputs.working-directory }}" != "." ]]; then
+          REPORT_TITLE="${{ inputs.working-directory }}"
         fi
 
         ARTIFACT_NAME="${{ inputs.artifact-name }}"
         if [[ -z "$ARTIFACT_NAME" ]]; then
-          if [[ -n "$TARGET_ID" ]]; then
-            SAFE_ID=$(echo "$TARGET_ID" | tr '/\\' '--' | tr ' ' '-')
+          if [[ -n "$REPORT_TITLE" ]]; then
+            SAFE_ID=$(echo "$REPORT_TITLE" | tr '/\\' '--' | tr ' ' '-')
             ARTIFACT_NAME="terraform-critical-path-report-${SAFE_ID}"
           else
             ARTIFACT_NAME="terraform-critical-path-report"
@@ -216,7 +223,7 @@ runs:
 
         echo "dot_path=${DOT_FILE}" >> $GITHUB_OUTPUT
         echo "log_path=${LOG_FILE}" >> $GITHUB_OUTPUT
-        echo "target_id=${TARGET_ID}" >> $GITHUB_OUTPUT
+        echo "report_title=${REPORT_TITLE}" >> $GITHUB_OUTPUT
         echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
 
     - name: Run Analysis
@@ -232,6 +239,10 @@ runs:
           ARGS+=(-output-html "tf-analysis-report.html")
         fi
         ARGS+=(-output-markdown "tf-analysis-summary.md")
+
+        if [[ -n "${{ steps.prep.outputs.report_title }}" ]]; then
+          ARGS+=(-title "${{ steps.prep.outputs.report_title }}")
+        fi
 
         tf-graph-analysis "${ARGS[@]}"
 
@@ -270,21 +281,13 @@ runs:
             return;
           }
 
-          const targetId = '${{ steps.prep.outputs.target_id }}';
+          const reportTitle = '${{ steps.prep.outputs.report_title }}';
           const artifactName = '${{ steps.prep.outputs.artifact_name }}';
-          const marker = targetId
-            ? `<!-- tf-graph-analysis-comment:${targetId} -->`
+          const marker = reportTitle
+            ? `<!-- tf-graph-analysis-comment:${reportTitle} -->`
             : '<!-- tf-graph-analysis-comment -->';
 
           let content = fs.readFileSync(summaryPath, 'utf8');
-
-          // Distinguish matrix runs in header if targetId exists
-          if (targetId) {
-            content = content.replace(
-              '### 📊 Terraform Graph Critical Path Analysis',
-              `### 📊 Terraform Graph Critical Path Analysis (\`${targetId}\`)`
-            );
-          }
 
           // Append link to Workflow Run Artifacts in PR comment
           if ('${{ inputs.upload-html-report }}' === 'true') {

@@ -82,6 +82,23 @@ func TestHTMLReport(t *testing.T) {
 	if !strings.Contains(output, "res_a") {
 		t.Errorf("expected res_a in output")
 	}
+
+	// Test with title
+	var bufWithTitle bytes.Buffer
+	err = exporter.ExportHTMLReport(&bufWithTitle, res, "envs/prod")
+	if err != nil {
+		t.Fatalf("ExportHTMLReport with title failed: %v", err)
+	}
+	outTitle := bufWithTitle.String()
+	if !strings.Contains(outTitle, "envs/prod - Terraform Critical Path Report") {
+		t.Errorf("expected title in html title tag, got: %s", outTitle[:300])
+	}
+	if !strings.Contains(outTitle, `<span class="title-badge">envs/prod</span>`) {
+		t.Errorf("expected title badge in html output")
+	}
+	if strings.Contains(outTitle, "Local Standalone") {
+		t.Errorf("expected 'Local' to be removed from subtitle")
+	}
 }
 
 func TestMarkdownReport(t *testing.T) {
@@ -101,6 +118,14 @@ func TestMarkdownReport(t *testing.T) {
 	}
 	if !strings.Contains(output, "`res_a`") {
 		t.Errorf("expected `res_a` in markdown output")
+	}
+
+	// Test with title
+	var bufWithTitle bytes.Buffer
+	exporter.PrintMarkdownReport(&bufWithTitle, res, "envs/prod")
+	outTitle := bufWithTitle.String()
+	if !strings.Contains(outTitle, "### 📊 Terraform Graph Critical Path Analysis (`envs/prod`)") {
+		t.Errorf("expected title in markdown header, got: %s", outTitle)
 	}
 }
 
