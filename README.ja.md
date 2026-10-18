@@ -35,8 +35,23 @@ Terraform は依存関係のないリソースを並列に処理しますが、�
 
 ## クイックスタート
 
-### インストール・ビルド
+### インストール・入手方法
 
+#### 配布バイナリを直接ダウンロード
+[Releases](https://github.com/kheiakiyama/tf-graph-analysis/releases) ページからお使いの OS（Linux, macOS, Windows）向けの最新アーカイブをダウンロードして展開してください。
+
+> [!NOTE]
+> **macOS をご利用の場合**: ダウンロードしたバイナリの初回実行時に Gatekeeper によりブロックされる場合があります。その場合は以下のコマンドで検疫属性を解除してください：
+> ```bash
+> xattr -d com.apple.quarantine ./tf-graph-analysis
+> ```
+
+#### Go で直接インストール
+```bash
+go install github.com/kheiakiyama/tf-graph-analysis/cmd/tf-graph-analysis@latest
+```
+
+#### ソースコードからビルド
 ```bash
 git clone https://github.com/kheiakiyama/tf-graph-analysis.git
 cd tf-graph-analysis
@@ -93,6 +108,105 @@ open report.html
 
 ---
 
+## GitHub Action による CI 連携
+
+Pull Request ごとに自動でクリティカルパス分析を実行し、ボトルネックチェーンや想定所要時間を PR コメントに投稿できます。
+
+### パターン A: GitHub Actions ランナー上で直接 Terraform を実行している場合
+
+```yaml
+name: Terraform Plan & Analysis
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # PR コメント投稿に必要
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init & Plan
+        run: |
+          terraform init
+          terraform graph -type=plan > graph.dot
+          TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1 || true
+
+      - name: Critical Path Analysis
+        uses: kheiakiyama/tf-graph-analysis@v0.1.0
+        with:
+          dot-file: 'graph.dot'
+          log-file: 'tf_plan.log'
+          pr-comment: 'true'
+```
+
+---
+
+### パターン B: HCP Terraform (Terraform Cloud) でリモート実行している場合
+
+HCP Terraform で実行している場合、Action が HCP Terraform API を介して最新の Plan/Apply ログを自動取得し、依存グラフもリポジトリから自動生成して解析します。
+
+```yaml
+name: Terraform Cloud Analysis
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Critical Path Analysis (TFC)
+        uses: kheiakiyama/tf-graph-analysis@v0.1.0
+        with:
+          tfc-token: ${{ secrets.TFC_TOKEN }}
+          tfc-organization: 'my-org'
+          tfc-workspace: 'my-workspace'
+          pr-comment: 'true'
+```
+
+#### 🔒 セキュリティベストプラクティス: `TFC_TOKEN` の最小権限設定
+
+セキュリティ上の観点から、管理者権限を持つ User Token や Organization Token の使用は **強く非推奨** です。CI/CD 用の読み取り専用トークンを作成してください：
+
+1. HCP Terraform コンソールで **Settings** > **Teams** を開き、専用チーム（例: `ci-profiler`）を作成します。
+2. 対象 Workspace のアクセス権限（Workspace Access）を設定します：
+   - **Runs**: `Read runs` のみ許可（`Plan`, `Apply`, `Destroy` 権限は **不要** です）
+   - **State Versions**: `No access`（State ファイルは読み取りません）
+   - **Variables**: `No access`（機密変数へのアクセスは不要です）
+3. 作成したチームで **Team Token** を発行し、GitHub の Secrets（`TFC_TOKEN`）に登録します。
+
+この設定により、万が一トークンが漏洩した場合でも、インフラの変更や State 内の機密情報へのアクセスを完全に防止できます。
+
+---
+
+### Action のバージョン指定とチェックサム検証
+
+サプライチェーン攻撃の防止と実行の再現性を担保するため、本 Action は公式リリースバイナリのみをダウンロードし、`checksums.txt` の **SHA-256 チェックサムを自動検証** します。
+
+- **セマンティックバージョン固定（一般的なチームに推奨）**:
+  ```yaml
+  uses: kheiakiyama/tf-graph-analysis@v0.1.0
+  ```
+- **コミット SHA ピン留め（厳格なセキュリティポリシー / OpenSSF Scorecard 準拠）**:
+  ```yaml
+  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.0
+  ```
+  コミット SHA でピン留めされた場合、Action が自動的に該当するリリースバージョンを GitHub API から逆引き解決し、バイナリのダウンロードとチェックサム検証を行います（未リリースコミットをピン留めする場合は `with: version: v0.1.0` を明示してください）。
+
+---
+
 ## 実行結果の例
 
 ### ターミナル出力例
@@ -129,6 +243,21 @@ Rank | Resource Name                                                | Duration  
 - 最も単体で遅い `helm_release.cert_manager`（1分13秒）は、並行実行されており **Slack（余裕時間）が 12.3秒** あるため、全体の完了時間を遅らせている犯人ではありません。
 - 真のボトルネックは、直列に依存連鎖している末尾の **`helm_release.keda`（41.3秒、Slack 0s）** です。
 - Helm や Prometheus モニターのリソースを別 State に切り離すことで、Plan 時間を大幅に短縮できることが客観的に証明されます。
+
+---
+
+## CLI オプション一覧
+
+| フラグ | デフォルト | 説明 |
+| --- | --- | --- |
+| `-dot` | `""` | **(必須)** Terraform graph DOT ファイルのパス |
+| `-log` | `""` | `TRACE` または `DEBUG` ログファイルのパス |
+| `-output-html` | `""` | 完全ローカル動作の HTML レポート出力先パス |
+| `-output-markdown` | `""` | GitHub Flavored Markdown レポート出力先パス (PR コメント用) |
+| `-output-trace` | `""` | Chrome Trace Event Format JSON 出力先パス |
+| `-output-dot` | `""` | クリティカルパス強調 DOT ファイル出力先パス |
+| `-default-duration` | `100ms` | ログに所要時間がないリソースのデフォルト推定時間 |
+| `-version` | `false` | バージョンを表示して終了 |
 
 ---
 

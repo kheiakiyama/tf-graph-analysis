@@ -30,4 +30,13 @@ jobs:
         run: go test -v -race ./...
 
       - name: Build binary
-        run: go build -v -o tf-graph-analysis ./cmd/tf-graph-analysis
+        run: |
+          go build -v -o tf-graph-analysis ./cmd/tf-graph-analysis
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Test Action execution
+        uses: ./
+        with:
+          dot-file: 'testdata/fixtures/sample_graph.dot'
+          log-file: 'testdata/fixtures/sample_plan.log'
+          pr-comment: 'false'

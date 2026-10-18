@@ -22,6 +22,7 @@ func main() {
 	outputDot := flag.String("output-dot", "", "Path to output highlighted DOT file [OPTIONAL]")
 	outputTrace := flag.String("output-trace", "", "Path to output Chrome Trace Event Format JSON file [OPTIONAL]")
 	outputHtml := flag.String("output-html", "", "Path to output standalone interactive HTML report [OPTIONAL]")
+	outputMarkdown := flag.String("output-markdown", "", "Path to output GitHub-flavored Markdown report [OPTIONAL]")
 	defaultDuration := flag.Duration("default-duration", 100*time.Millisecond, "Default fallback duration for nodes without log timing")
 	showVersion := flag.Bool("version", false, "Print version and exit")
 
@@ -105,6 +106,15 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error writing HTML report: %v\n", err)
 		} else {
 			fmt.Printf("Interactive HTML report written to: %s\n(Completely local: open in any browser without internet)\n", *outputHtml)
+		}
+	}
+
+	// 8. Output GitHub-flavored Markdown report if requested
+	if *outputMarkdown != "" {
+		if err := exporter.ExportMarkdownReportFile(*outputMarkdown, result); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing Markdown report: %v\n", err)
+		} else {
+			fmt.Printf("Markdown report written to: %s\n", *outputMarkdown)
 		}
 	}
 }

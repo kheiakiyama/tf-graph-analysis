@@ -1,0 +1,261 @@
+name: 'Terraform Critical Path Analyzer'
+description: 'Analyze Terraform DAG and execution logs using the Critical Path Method (CPM) to identify bottlenecks.'
+author: 'kheiakiyama'
+branding:
+  icon: 'activity'
+  color: 'blue'
+
+inputs:
+  dot-file:
+    description: 'Path to Terraform graph DOT file (from `terraform graph -type=plan`). If empty in TFC mode, generated automatically.'
+    required: false
+    default: ''
+  log-file:
+    description: 'Path to Terraform execution log file (from `TF_LOG=TRACE terraform plan/apply`).'
+    required: false
+    default: ''
+  tfc-token:
+    description: 'HCP Terraform (Terraform Cloud) API Token. Required for Terraform Cloud mode.'
+    required: false
+    default: ''
+  tfc-organization:
+    description: 'HCP Terraform Organization name. Required for Terraform Cloud mode.'
+    required: false
+    default: ''
+  tfc-workspace:
+    description: 'HCP Terraform Workspace name. Required for Terraform Cloud mode.'
+    required: false
+    default: ''
+  tfc-run-id:
+    description: 'Specific HCP Terraform Run ID. If omitted, the latest run matching the current commit SHA is used.'
+    required: false
+    default: ''
+  working-directory:
+    description: 'Working directory containing Terraform configuration.'
+    required: false
+    default: '.'
+  version:
+    description: 'Version of tf-graph-analysis to download (e.g. "latest" or "v0.1.0").'
+    required: false
+    default: 'latest'
+  output-html:
+    description: 'Path to output the interactive HTML report.'
+    required: false
+    default: 'tf-analysis-report.html'
+  pr-comment:
+    description: 'Automatically post or update analysis summary on Pull Requests.'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'GitHub Token for posting PR comments.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  html-report:
+    description: 'Path to the generated HTML report.'
+    value: ${{ inputs.output-html }}
+  markdown-report:
+    description: 'Path to the generated Markdown report.'
+    value: 'tf-analysis-summary.md'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download tf-graph-analysis binary
+      shell: bash
+      run: |
+        if command -v tf-graph-analysis &> /dev/null; then
+          echo "tf-graph-analysis is already installed."
+          exit 0
+        fi
+
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64) ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+          *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+        esac
+
+        VERSION="${{ inputs.version }}"
+        TAG=""
+
+        # 1. Determine target tag/version
+        if [[ "$VERSION" == "latest" ]]; then
+          TAG=$(curl -s -f "https://api.github.com/repos/kheiakiyama/tf-graph-analysis/releases/latest" | jq -r '.tag_name // empty')
+          if [[ -z "$TAG" || "$TAG" == "null" ]]; then
+            TAG="${{ github.action_ref }}"
+          fi
+        else
+          TAG="$VERSION"
+        fi
+
+        # 2. If referenced by commit SHA (40-char hex), resolve to matching release tag
+        if [[ "$TAG" =~ ^[0-9a-f]{40}$ ]]; then
+          echo "Action is pinned by commit SHA: ${TAG}. Resolving associated release tag..."
+          # Check releases target_commitish
+          RESOLVED_TAG=$(curl -s -f "https://api.github.com/repos/kheiakiyama/tf-graph-analysis/releases" | jq -r --arg sha "$TAG" '.[] | select(.target_commitish == $sha) | .tag_name' | head -n 1)
+          if [[ -z "$RESOLVED_TAG" || "$RESOLVED_TAG" == "null" ]]; then
+            # Check git tag refs
+            RESOLVED_TAG=$(curl -s -f "https://api.github.com/repos/kheiakiyama/tf-graph-analysis/git/matching-refs/tags" | jq -r --arg sha "$TAG" '.[] | select(.object.sha == $sha) | .ref' | sed 's#refs/tags/##' | head -n 1)
+          fi
+
+          if [[ -n "$RESOLVED_TAG" && "$RESOLVED_TAG" != "null" ]]; then
+            echo "Successfully resolved commit SHA to release: ${RESOLVED_TAG}"
+            TAG="$RESOLVED_TAG"
+          else
+            echo "::error::Could not resolve commit SHA '${TAG}' to a published release. When pinning by SHA, ensure the commit belongs to a published release, or specify 'with: version: vX.Y.Z'."
+            exit 1
+          fi
+        fi
+
+        if [[ -z "$TAG" || "$TAG" == "null" ]]; then
+          echo "::error::Could not resolve a valid release version. Please specify 'with: version: vX.Y.Z'."
+          exit 1
+        fi
+
+        # 3. Download release binary and verify checksum
+        VER_NO_V="${TAG#v}"
+        TAR_NAME="tf-graph-analysis_${VER_NO_V}_${OS}_${ARCH}.tar.gz"
+        BASE_URL="https://github.com/kheiakiyama/tf-graph-analysis/releases/download/${TAG}"
+        TAR_URL="${BASE_URL}/${TAR_NAME}"
+        CHECKSUM_URL="${BASE_URL}/checksums.txt"
+
+        echo "Downloading official release: ${TAR_URL}..."
+        TMP_DIR=$(mktemp -d)
+        if ! curl -s -f -L "$TAR_URL" -o "${TMP_DIR}/${TAR_NAME}"; then
+          echo "::error::Failed to download release binary from ${TAR_URL}. Make sure release '${TAG}' exists."
+          exit 1
+        fi
+
+        echo "Downloading checksums from ${CHECKSUM_URL}..."
+        if curl -s -f -L "$CHECKSUM_URL" -o "${TMP_DIR}/checksums.txt"; then
+          echo "Verifying SHA-256 checksum..."
+          EXPECTED_SHA=$(grep "${TAR_NAME}" "${TMP_DIR}/checksums.txt" | awk '{print $1}')
+          if [[ -n "$EXPECTED_SHA" ]]; then
+            if command -v sha256sum &> /dev/null; then
+              ACTUAL_SHA=$(sha256sum "${TMP_DIR}/${TAR_NAME}" | awk '{print $1}')
+            else
+              ACTUAL_SHA=$(shasum -a 256 "${TMP_DIR}/${TAR_NAME}" | awk '{print $1}')
+            fi
+
+            if [[ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]]; then
+              echo "::error::Checksum verification failed! Expected: ${EXPECTED_SHA}, Got: ${ACTUAL_SHA}"
+              exit 1
+            fi
+            echo "Checksum verification passed: ${ACTUAL_SHA}"
+          else
+            echo "::warning::Archive ${TAR_NAME} not found in checksums.txt. Skipping checksum check."
+          fi
+        else
+          echo "::warning::checksums.txt not available for ${TAG}. Skipping checksum check."
+        fi
+
+        # 4. Extract and install
+        tar -xzf "${TMP_DIR}/${TAR_NAME}" -C "${TMP_DIR}"
+        chmod +x "${TMP_DIR}/tf-graph-analysis"
+        mkdir -p "$HOME/.local/bin"
+        mv "${TMP_DIR}/tf-graph-analysis" "$HOME/.local/bin/tf-graph-analysis"
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "Successfully installed verified tf-graph-analysis binary."
+
+    - name: Prepare DOT and Log files
+      id: prep
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        DOT_FILE="${{ inputs.dot-file }}"
+        LOG_FILE="${{ inputs.log-file }}"
+
+        # Case B: Terraform Cloud (HCP Terraform) mode
+        if [[ -n "${{ inputs.tfc-token }}" ]]; then
+          echo "Running in Terraform Cloud (HCP Terraform) mode..."
+          LOG_FILE="tfc_downloaded.log"
+          "${{ github.action_path }}/scripts/fetch-tfc-log.sh" \
+            "${{ inputs.tfc-token }}" \
+            "${{ inputs.tfc-organization }}" \
+            "${{ inputs.tfc-workspace }}" \
+            "${{ inputs.tfc-run-id }}" \
+            "${LOG_FILE}" \
+            "${{ github.sha }}"
+
+          # If dot-file is not provided, generate from current directory
+          if [[ -z "$DOT_FILE" ]]; then
+            echo "No DOT file provided. Generating 'graph.dot' locally..."
+            terraform init -backend=false
+            terraform graph -type=plan > graph.dot
+            DOT_FILE="graph.dot"
+          fi
+        fi
+
+        if [[ -z "$DOT_FILE" || ! -f "$DOT_FILE" ]]; then
+          echo "::error::DOT file '$DOT_FILE' does not exist."
+          exit 1
+        fi
+
+        echo "dot_path=${DOT_FILE}" >> $GITHUB_OUTPUT
+        echo "log_path=${LOG_FILE}" >> $GITHUB_OUTPUT
+
+    - name: Run Analysis
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        ARGS=(-dot "${{ steps.prep.outputs.dot_path }}")
+        if [[ -n "${{ steps.prep.outputs.log_path }}" && -f "${{ steps.prep.outputs.log_path }}" ]]; then
+          ARGS+=(-log "${{ steps.prep.outputs.log_path }}")
+        fi
+
+        ARGS+=(-output-html "${{ inputs.output-html }}")
+        ARGS+=(-output-markdown "tf-analysis-summary.md")
+
+        tf-graph-analysis "${ARGS[@]}"
+
+        # Write to GITHUB_STEP_SUMMARY
+        cat "tf-analysis-summary.md" >> $GITHUB_STEP_SUMMARY
+
+    - name: Post PR Comment
+      if: ${{ inputs.pr-comment == 'true' && github.event_name == 'pull_request' }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const workDir = '${{ inputs.working-directory }}';
+          const summaryPath = path.join(workDir, 'tf-analysis-summary.md');
+
+          if (!fs.existsSync(summaryPath)) {
+            console.log('Summary markdown file not found: ' + summaryPath);
+            return;
+          }
+
+          const marker = '<!-- tf-graph-analysis-comment -->';
+          const content = fs.readFileSync(summaryPath, 'utf8');
+          const body = marker + '\n' + content;
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(c => c.body.includes(marker));
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body,
+            });
+            console.log('Updated existing PR comment ID: ' + botComment.id);
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
+            console.log('Created new PR comment.');
+          }

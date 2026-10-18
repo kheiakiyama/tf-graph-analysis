@@ -84,3 +84,23 @@ func TestHTMLReport(t *testing.T) {
 	}
 }
 
+func TestMarkdownReport(t *testing.T) {
+	nodeA := &model.Node{ID: "A", Name: "res_a", Duration: 5 * time.Second, IsCritical: true}
+	res := &model.AnalysisResult{
+		TotalDuration: 5 * time.Second,
+		CriticalPath:  []*model.Node{nodeA},
+		AllNodes:      []*model.Node{nodeA},
+	}
+
+	var buf bytes.Buffer
+	exporter.PrintMarkdownReport(&buf, res)
+	output := buf.String()
+
+	if !strings.Contains(output, "### 📊 Terraform Graph Critical Path Analysis") {
+		t.Errorf("expected markdown header in output")
+	}
+	if !strings.Contains(output, "`res_a`") {
+		t.Errorf("expected `res_a` in markdown output")
+	}
+}
+

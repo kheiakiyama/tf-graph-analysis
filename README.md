@@ -46,6 +46,17 @@ Optimizing a slow resource that has idle slack time yields **zero improvement** 
 #### Download Pre-built Binary
 Download the latest binary for your operating system (Linux, macOS, Windows) from the [Releases](https://github.com/kheiakiyama/tf-graph-analysis/releases) page.
 
+> [!NOTE]
+> **macOS Note**: Downloaded binaries may be quarantined by macOS Gatekeeper. If blocked, remove the quarantine attribute:
+> ```bash
+> xattr -d com.apple.quarantine ./tf-graph-analysis
+> ```
+
+#### Install via Go
+```bash
+go install github.com/kheiakiyama/tf-graph-analysis/cmd/tf-graph-analysis@latest
+```
+
 #### Build from Source
 ```bash
 git clone https://github.com/kheiakiyama/tf-graph-analysis.git
@@ -109,6 +120,105 @@ open report.html
 
 ---
 
+## GitHub Action Integration
+
+You can integrate `tf-graph-analysis` directly into your GitHub Actions CI workflows to post bottleneck analysis summaries directly to Pull Requests.
+
+### Case A: Running Terraform directly in GitHub Actions
+
+If you run `terraform plan` on the GitHub Actions runner:
+
+```yaml
+name: Terraform Plan & Analysis
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Required for posting PR comments
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init & Plan
+        run: |
+          terraform init
+          terraform graph -type=plan > graph.dot
+          TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1 || true
+
+      - name: Critical Path Analysis
+        uses: kheiakiyama/tf-graph-analysis@v0.1.0
+        with:
+          dot-file: 'graph.dot'
+          log-file: 'tf_plan.log'
+          pr-comment: 'true'
+```
+
+---
+
+### Case B: Using HCP Terraform (Terraform Cloud) Remote Execution
+
+When using HCP Terraform, the plan executes remotely. The Action automatically fetches the plan/apply log via the HCP Terraform API and generates the dependency graph:
+
+```yaml
+name: Terraform Cloud Analysis
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Critical Path Analysis (TFC)
+        uses: kheiakiyama/tf-graph-analysis@v0.1.0
+        with:
+          tfc-token: ${{ secrets.TFC_TOKEN }}
+          tfc-organization: 'my-org'
+          tfc-workspace: 'my-workspace'
+          pr-comment: 'true'
+```
+
+#### 🔒 Security Best Practices: Least-Privilege `TFC_TOKEN`
+
+Do **NOT** use an Organization Token or Admin User Token. Configure a dedicated, read-only token:
+
+1. In HCP Terraform, go to **Settings** > **Teams** and create a read-only team (e.g. `ci-profiler`).
+2. Grant the team **Read-only** workspace access:
+   - **Runs**: `Read runs` only (do NOT grant `Apply`, `Plan`, or `Destroy`).
+   - **State Versions**: `No access` (state files are not needed).
+   - **Variables**: `No access` (sensitive variables are never accessed).
+3. Generate a **Team Token** and store it in GitHub Secrets as `TFC_TOKEN`.
+
+---
+
+### Action Version Pinning & Checksum Integrity
+
+To ensure maximum security and reproducibility, this Action strictly downloads official release binaries and validates their SHA-256 checksums from `checksums.txt`.
+
+- **Semantic Version Pinning (Recommended for most teams)**:
+  ```yaml
+  uses: kheiakiyama/tf-graph-analysis@v0.1.0
+  ```
+- **Commit SHA Pinning (Recommended for strict security policies / OpenSSF Scorecard)**:
+  ```yaml
+  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.0
+  ```
+  When pinned by commit SHA, the Action automatically resolves the matching release tag from GitHub, downloads the official binary, and verifies its SHA-256 checksum. If pinning a non-release commit, specify `with: version: v0.1.0`.
+
+---
+
 ## Example Output
 
 ### Terminal Summary
@@ -156,6 +266,7 @@ Rank | Resource Name                                                | Duration  
 | `-dot` | `""` | **(Required)** Path to Terraform graph DOT file |
 | `-log` | `""` | Path to Terraform log file with `TRACE` or `DEBUG` logs |
 | `-output-html` | `""` | Path to export standalone interactive HTML report |
+| `-output-markdown` | `""` | Path to export GitHub-flavored Markdown report (for PR comments) |
 | `-output-trace` | `""` | Path to export Chrome Trace Event Format JSON |
 | `-output-dot` | `""` | Path to export highlighted Graphviz DOT file |
 | `-default-duration` | `100ms` | Fallback duration for resources without log timing |
