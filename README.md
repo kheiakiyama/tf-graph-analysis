@@ -157,6 +157,8 @@ jobs:
           dot-file: 'graph.dot'
           log-file: 'tf_plan.log'
           pr-comment: 'true'
+
+> 💡 **HTML Report**: The interactive waterfall HTML report is automatically uploaded as a workflow artifact (`terraform-critical-path-report`) and linked in the PR comment. To disable, set `upload-html-report: 'false'`.
 ```
 
 ---

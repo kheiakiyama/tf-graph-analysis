@@ -143,6 +143,8 @@ jobs:
           dot-file: 'graph.dot'
           log-file: 'tf_plan.log'
           pr-comment: 'true'
+
+> 💡 **HTML レポート**: インタラクティブな HTML レポートは自動的にワークフローの Artifact（`terraform-critical-path-report`）として保存され、PR コメントから直接ダウンロードできます（無効化したい場合は `upload-html-report: 'false'` を指定）。
 ```
 
 ---
