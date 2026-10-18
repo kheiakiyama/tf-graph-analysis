@@ -191,6 +191,10 @@ jobs:
 
 この設定により、万が一トークンが漏洩した場合でも、インフラの変更や State 内の機密情報へのアクセスを完全に防止できます。
 
+> 💡 **追加の権限付与が不要な理由**: グラフ生成時、本 Action はバックエンド設定を自動的かつ一時的に `local` にオーバーライドします。そのため、Terraform CLI が HCP Terraform にアクセスしたり、State や Workspace の読み取り権限を要求したりすることはありません。`TFC_TOKEN` は API 経由での Plan/Apply ログの取得にのみ使用されます。
+>
+> *(※ GitHub-hosted ランナーには `terraform` がプリインストールされていますが、Terraform 未導入のセルフホストランナーをご利用の場合は、前段に `hashicorp/setup-terraform` を追加してください)*
+
 ---
 
 ### Action のバージョン指定とチェックサム検証

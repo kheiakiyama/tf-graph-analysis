@@ -203,6 +203,10 @@ Do **NOT** use an Organization Token or Admin User Token. Configure a dedicated,
    - **Variables**: `No access` (sensitive variables are never accessed).
 3. Generate a **Team Token** and store it in GitHub Secrets as `TFC_TOKEN`.
 
+> 💡 **Why no extra permissions are needed**: During graph generation, this Action automatically overrides the backend to `local` so Terraform never dials HCP Terraform or requires workspace/state read permissions. The `TFC_TOKEN` is used purely to download plan/apply logs via the API.
+>
+> *(Note: GitHub-hosted runners have `terraform` pre-installed. If using a self-hosted runner without Terraform, add `hashicorp/setup-terraform` before this Action.)*
+
 ---
 
 ### Action Version Pinning & Checksum Integrity
