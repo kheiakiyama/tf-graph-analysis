@@ -41,12 +41,16 @@ TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1
 # 基本的なコンソールサマリー表示
 ./tf-graph-analysis -dot graph.dot -log tf_plan.log
 
-# ハイライト付き DOT と Chrome Tracing JSON を同時出力
+# ハイライト付き DOT、Chrome Tracing JSON、および自己完結型 HTML レポートを同時出力
 ./tf-graph-analysis \
   -dot graph.dot \
   -log tf_plan.log \
   -output-dot highlighted.dot \
-  -output-trace trace.json
+  -output-trace trace.json \
+  -output-html report.html
+
+# 完全ローカルでHTMLレポートを閲覧（外部通信ゼロ・社内機密安全）
+open report.html
 ```
 
 ---

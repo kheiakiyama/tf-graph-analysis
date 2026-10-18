@@ -21,6 +21,7 @@ func main() {
 	logPath := flag.String("log", "", "Path to Terraform log file (from `TF_LOG=TRACE terraform plan/apply`) [OPTIONAL]")
 	outputDot := flag.String("output-dot", "", "Path to output highlighted DOT file [OPTIONAL]")
 	outputTrace := flag.String("output-trace", "", "Path to output Chrome Trace Event Format JSON file [OPTIONAL]")
+	outputHtml := flag.String("output-html", "", "Path to output standalone interactive HTML report [OPTIONAL]")
 	defaultDuration := flag.Duration("default-duration", 100*time.Millisecond, "Default fallback duration for nodes without log timing")
 	showVersion := flag.Bool("version", false, "Print version and exit")
 
@@ -95,6 +96,15 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error writing trace JSON: %v\n", err)
 		} else {
 			fmt.Printf("Chrome Trace JSON written to: %s\n(Open in chrome://tracing or https://ui.perfetto.dev)\n", *outputTrace)
+		}
+	}
+
+	// 7. Output Standalone HTML Report if requested
+	if *outputHtml != "" {
+		if err := exporter.ExportHTMLReportFile(*outputHtml, result); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing HTML report: %v\n", err)
+		} else {
+			fmt.Printf("Interactive HTML report written to: %s\n(Completely local: open in any browser without internet)\n", *outputHtml)
 		}
 	}
 }

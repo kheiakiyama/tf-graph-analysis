@@ -60,3 +60,27 @@ func TestTraceJSON(t *testing.T) {
 		t.Errorf("expected critical node to have cname 'bad', got '%s'", traceData.TraceEvents[0].CName)
 	}
 }
+
+func TestHTMLReport(t *testing.T) {
+	nodeA := &model.Node{ID: "A", Name: "res_a", Duration: 5 * time.Second, IsCritical: true}
+	res := &model.AnalysisResult{
+		TotalDuration: 5 * time.Second,
+		CriticalPath:  []*model.Node{nodeA},
+		AllNodes:      []*model.Node{nodeA},
+	}
+
+	var buf bytes.Buffer
+	err := exporter.ExportHTMLReport(&buf, res)
+	if err != nil {
+		t.Fatalf("ExportHTMLReport failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "Terraform Critical Path Report") {
+		t.Errorf("expected HTML title in output")
+	}
+	if !strings.Contains(output, "res_a") {
+		t.Errorf("expected res_a in output")
+	}
+}
+
