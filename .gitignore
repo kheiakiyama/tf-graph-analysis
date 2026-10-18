@@ -13,6 +13,7 @@ testdata/tf_sample/.terraform
 testdata/tf_sample/*.tfstate*
 testdata/tf_sample/*.log
 testdata/tf_sample/*.dot
+testdata/real/
 
 # OS
 .DS_Store
