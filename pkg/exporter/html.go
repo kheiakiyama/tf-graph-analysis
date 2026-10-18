@@ -85,8 +85,11 @@ func ExportHTMLReport(w io.Writer, res *model.AnalysisResult) error {
 		})
 	}
 
-	// Sort allData by duration descending by default
+	// Sort allData by EarliestStart ascending (chronological execution order)
 	sort.Slice(allData, func(i, j int) bool {
+		if allData[i].EarliestStartMs != allData[j].EarliestStartMs {
+			return allData[i].EarliestStartMs < allData[j].EarliestStartMs
+		}
 		return allData[i].DurationMs > allData[j].DurationMs
 	})
 
@@ -242,7 +245,8 @@ body {
 
 .timeline-canvas-wrapper {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
+  max-height: 550px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -378,13 +382,31 @@ tr:hover {
 <div class="section">
   <h2>⏱️ Interactive Execution Timeline</h2>
   <div class="timeline-controls">
-    <div>
+    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+      <label>
+        <input type="checkbox" id="chkOnlyResources" checked>
+        Resources Only
+      </label>
       <label>
         <input type="checkbox" id="chkOnlyCritical">
         Show Critical Path Only
       </label>
+      <label>
+        <input type="checkbox" id="chkHideZero" checked>
+        Hide 0s Nodes
+      </label>
+      <label style="color:var(--text-secondary);">
+        Limit:
+        <select id="selLimit" style="background:var(--bg-primary); color:var(--text-primary); border:1px solid var(--border-color); border-radius:4px; padding:2px 6px; margin-left:4px;">
+          <option value="1000" selected>1000</option>
+          <option value="all">All</option>
+        </select>
+      </label>
     </div>
-    <input type="text" id="timelineSearch" class="search-input" placeholder="Search resources...">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="searchCount" style="font-size:12px; color:var(--text-secondary);"></span>
+      <input type="text" id="timelineSearch" class="search-input" placeholder="Search resources...">
+    </div>
   </div>
   <div class="timeline-canvas-wrapper" id="canvasWrapper">
     <canvas id="timelineCanvas" height="400"></canvas>
@@ -446,9 +468,10 @@ reportData.criticalPath.forEach((node, idx) => {
   chainList.appendChild(item);
 });
 
-// Render Table
+// Render Table (Top slowest resources)
 const tableBody = document.getElementById('tableBody');
-reportData.allNodes.slice(0, 50).forEach(node => {
+const sortedByDuration = [...reportData.allNodes].sort((a, b) => b.durationMs - a.durationMs);
+sortedByDuration.slice(0, 50).forEach(node => {
   const tr = document.createElement('tr');
   const badge = node.isCritical ? '<span class="badge-crit">CRITICAL</span>' : '<span style="color:var(--text-muted)">No</span>';
   tr.innerHTML = ` + "`" + `
@@ -456,10 +479,20 @@ reportData.allNodes.slice(0, 50).forEach(node => {
     <td><strong>${node.durationStr}</strong></td>
     <td>${badge}</td>
     <td>${node.slackStr}</td>
-    <td>${node.earliestStartMs}ms</td>
+    <td>${formatTime(node.earliestStartMs)}</td>
   ` + "`" + `;
   tableBody.appendChild(tr);
 });
+
+// Format time utility
+function formatTime(ms) {
+  if (ms < 1000) return ms + 'ms';
+  const sec = (ms / 1000).toFixed(1);
+  if (ms < 60000) return sec + 's';
+  const m = Math.floor(ms / 60000);
+  const s = Math.round((ms % 60000) / 1000);
+  return m + 'm ' + s + 's';
+}
 
 // Canvas Timeline Renderer
 const canvas = document.getElementById('timelineCanvas');
@@ -471,28 +504,66 @@ let itemsToRender = [];
 let hoveredItem = null;
 
 function updateTimelineData() {
+  const onlyResources = document.getElementById('chkOnlyResources').checked;
   const onlyCrit = document.getElementById('chkOnlyCritical').checked;
-  const query = document.getElementById('timelineSearch').value.toLowerCase();
+  const hideZero = document.getElementById('chkHideZero').checked;
+  const limitVal = document.getElementById('selLimit').value;
+  const query = document.getElementById('timelineSearch').value.toLowerCase().trim();
 
-  let list = onlyCrit ? reportData.criticalPath : reportData.allNodes;
+  // AllNodes is already sorted chronologically by EarliestStart
+  let list = onlyCrit ? [...reportData.criticalPath] : [...reportData.allNodes];
+
+  if (onlyResources) {
+    list = list.filter(n => n.isResource);
+  }
+
+  if (hideZero) {
+    list = list.filter(n => n.durationMs > 0);
+  }
+
+  const maxSafeItems = 1200; // Browsers crash if canvas height exceeds ~32,000px
+
   if (query) {
     list = list.filter(n => n.name.toLowerCase().includes(query));
+    if (list.length > maxSafeItems) {
+      document.getElementById('searchCount').innerText = list.length + ' matches (showing top ' + maxSafeItems + ')';
+      itemsToRender = list.slice(0, maxSafeItems);
+    } else {
+      document.getElementById('searchCount').innerText = list.length + ' matches';
+      itemsToRender = list;
+    }
+  } else {
+    if (limitVal === 'all') {
+      if (list.length > maxSafeItems) {
+        document.getElementById('searchCount').innerText = 'Showing top ' + maxSafeItems + ' of ' + list.length + ' (Canvas limit)';
+        itemsToRender = list.slice(0, maxSafeItems);
+      } else {
+        document.getElementById('searchCount').innerText = list.length + ' items (All)';
+        itemsToRender = list;
+      }
+    } else {
+      const num = parseInt(limitVal, 10);
+      document.getElementById('searchCount').innerText = Math.min(num, list.length) + ' of ' + list.length + ' items';
+      itemsToRender = list.slice(0, num);
+    }
   }
-  // Filter out 0 duration nodes from timeline if too crowded, or give them a minimal width
-  itemsToRender = list.slice(0, 80); // top 80 for crisp canvas rendering
+
   renderTimeline();
 }
 
+document.getElementById('chkOnlyResources').addEventListener('change', updateTimelineData);
 document.getElementById('chkOnlyCritical').addEventListener('change', updateTimelineData);
+document.getElementById('chkHideZero').addEventListener('change', updateTimelineData);
+document.getElementById('selLimit').addEventListener('change', updateTimelineData);
 document.getElementById('timelineSearch').addEventListener('input', updateTimelineData);
 
 function renderTimeline() {
   const rowHeight = 24;
-  const paddingLeft = 200;
+  const paddingLeft = 300;
   const paddingRight = 40;
   const paddingTop = 30;
-  const height = Math.max(300, paddingTop + itemsToRender.length * rowHeight + 20);
-  const width = Math.max(wrapper.clientWidth, 800);
+  const height = Math.max(300, Math.min(30000, paddingTop + itemsToRender.length * rowHeight + 20));
+  const width = Math.max(wrapper.clientWidth, 900);
 
   canvas.width = width;
   canvas.height = height;
@@ -507,7 +578,7 @@ function renderTimeline() {
   ctx.fillStyle = '#64748b';
   ctx.font = '11px sans-serif';
 
-  const steps = 5;
+  const steps = 6;
   for (let i = 0; i <= steps; i++) {
     const x = paddingLeft + (chartWidth / steps) * i;
     const timeVal = Math.round((maxTimeMs / steps) * i);
@@ -515,19 +586,19 @@ function renderTimeline() {
     ctx.moveTo(x, paddingTop - 10);
     ctx.lineTo(x, height - 10);
     ctx.stroke();
-    ctx.fillText(timeVal + 'ms', x - 15, paddingTop - 15);
+    ctx.fillText(formatTime(timeVal), x - 15, paddingTop - 15);
   }
 
   // Draw items
   itemsToRender.forEach((item, idx) => {
     const y = paddingTop + idx * rowHeight;
     const startX = paddingLeft + (item.earliestStartMs / maxTimeMs) * chartWidth;
-    const barWidth = Math.max(3, (item.durationMs / maxTimeMs) * chartWidth);
+    const barWidth = Math.max(4, (item.durationMs / maxTimeMs) * chartWidth);
 
     // Label
     ctx.fillStyle = item.isCritical ? '#fca5a5' : '#cbd5e1';
     ctx.font = item.isCritical ? 'bold 12px sans-serif' : '11px sans-serif';
-    const truncated = truncate(item.name, 26);
+    const truncated = truncate(item.name, 38);
     ctx.fillText(truncated, 10, y + 15);
 
     // Bar
@@ -564,10 +635,11 @@ canvas.addEventListener('mousemove', (e) => {
     tooltip.style.top = (e.pageY + 12) + 'px';
     tooltip.innerHTML = ` + "`" + `
       <strong>${escapeHtml(found.name)}</strong><br>
+      Start Offset: ${formatTime(found.earliestStartMs)}<br>
+      Finish Time: ${formatTime(found.earliestFinishMs)}<br>
       Duration: ${found.durationStr}<br>
-      Start Offset: ${found.earliestStartMs}ms<br>
       Slack: ${found.slackStr}<br>
-      Critical: ${found.isCritical ? 'YES' : 'No'}
+      Critical: ${found.isCritical ? '<span style="color:#ef4444;font-weight:bold;">YES (★)</span>' : 'No'}
     ` + "`" + `;
   } else {
     tooltip.style.opacity = '0';
