@@ -28,7 +28,7 @@ ABS_OUTPUT="${ABS_OUTPUT_DIR}/$(basename "$OUTPUT_DOT_FILE")"
 if git -C "$TARGET_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   REPO_ROOT=$(git -C "$TARGET_DIR" rev-parse --show-toplevel)
   COPY_ROOT="$REPO_ROOT"
-  EXEC_SUBDIR=$(python3 -c "import os.path; print(os.path.relpath(os.path.realpath('$TARGET_DIR'), os.path.realpath('$REPO_ROOT')))")
+  EXEC_SUBDIR=$(python3 -c "import os.path, sys; print(os.path.relpath(os.path.realpath(sys.argv[1]), os.path.realpath(sys.argv[2])))" "$TARGET_DIR" "$REPO_ROOT")
 else
   COPY_ROOT="$TARGET_DIR"
   EXEC_SUBDIR="."
