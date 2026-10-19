@@ -46,6 +46,10 @@ if [[ -z "$RUN_ID" ]]; then
       echo "Matching run with commit SHA: ${TARGET_COMMIT_SHA}..."
       RUN_ID=$(echo "$RUNS_RESP" | jq -r --arg sha "$TARGET_COMMIT_SHA" \
         '.data[] | select(.attributes."commit-sha" == $sha or (.attributes.message // "" | contains($sha))) | .id' | head -n 1)
+    else
+      # If no commit SHA is provided, use the latest run
+      RUN_ID=$(echo "$RUNS_RESP" | jq -r '.data[0].id // empty')
+      break
     fi
 
     if [[ -n "$RUN_ID" && "$RUN_ID" != "null" ]]; then
@@ -54,9 +58,8 @@ if [[ -z "$RUN_ID" ]]; then
 
     NOW=$(date +%s)
     if (( NOW - FIND_START >= FIND_RUN_TIMEOUT )); then
-      echo "Commit-specific run not found after ${FIND_RUN_TIMEOUT}s, falling back to latest run..."
-      RUN_ID=$(echo "$RUNS_RESP" | jq -r '.data[0].id // empty')
-      break
+      echo "::error::No run matching commit SHA '${TARGET_COMMIT_SHA}' found in workspace '${TFC_WORKSPACE}' after ${FIND_RUN_TIMEOUT}s."
+      exit 1
     fi
 
     echo "Run for commit ${TARGET_COMMIT_SHA} not detected yet. Waiting for HCP Terraform to trigger run..."
@@ -103,12 +106,12 @@ while true; do
 
   case "$STATUS" in
     # Terminal / completed plan statuses where logs are fully available
-    planned|planned_and_finished|cost_estimated|policy_checked|confirmed|applied|errored|canceled|discarded)
+    planned|planned_and_finished|needs_confirmation|cost_estimated|policy_checked|policy_override|policy_soft_failed|confirmed|applied|errored|plan_errored|canceled|force_canceled|discarded)
       echo "Run reached terminal/ready state '${STATUS}'. Fetching log..."
       break
       ;;
     # In-progress statuses
-    pending|plan_queued|fetching|planning|cost_estimating|policy_checking|applying|queuing|*)
+    pending|fetching|fetching_completed|pre_plan_running|pre_plan_completed|queuing|plan_queued|planning|cost_estimating|policy_checking|apply_queued|applying|*)
       sleep "$POLL_INTERVAL"
       ;;
   esac
