@@ -40,12 +40,30 @@ if [[ -z "$RUN_ID" ]]; then
   while [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; do
     RUNS_RESP=$(curl -s -f -H "Authorization: Bearer ${TFC_TOKEN}" \
       -H "Content-Type: application/vnd.api+json" \
-      "${TFC_API_BASE}/workspaces/${WORKSPACE_ID}/runs?page%5Bsize%5D=10")
+      "${TFC_API_BASE}/workspaces/${WORKSPACE_ID}/runs?include=configuration_version.ingress_attributes&page%5Bsize%5D=10")
 
     if [[ -n "$TARGET_COMMIT_SHA" ]]; then
       echo "Matching run with commit SHA: ${TARGET_COMMIT_SHA}..."
-      RUN_ID=$(echo "$RUNS_RESP" | jq -r --arg sha "$TARGET_COMMIT_SHA" \
-        '.data[] | select(.attributes."commit-sha" == $sha or (.attributes.message // "" | contains($sha))) | .id' | head -n 1)
+      RUN_ID=$(echo "$RUNS_RESP" | jq -r --arg sha "$TARGET_COMMIT_SHA" '
+        . as $root |
+        [
+          $root.data[]? | select(
+            .attributes["commit-sha"] == $sha or
+            ((.attributes.message // "") | contains($sha)) or
+            (
+              .relationships["configuration-version"].data.id as $cv_id |
+              ($root.included[]? | select(.type == "configuration-versions" and .id == $cv_id) |
+                (.attributes["commit-sha"] == $sha or
+                 (
+                   .relationships["ingress-attributes"].data.id as $ia_id |
+                   ($root.included[]? | select(.type == "ingress-attributes" and .id == $ia_id) | .attributes["commit-sha"] == $sha)
+                 )
+                )
+              )
+            )
+          ) | .id
+        ][0] // empty
+      ')
     else
       # If no commit SHA is provided, use the latest run
       RUN_ID=$(echo "$RUNS_RESP" | jq -r '.data[0].id // empty')
@@ -117,22 +135,33 @@ while true; do
   esac
 done
 
-# Prefer apply log if completed, otherwise fetch plan log
-LOG_ENDPOINT=""
-if [[ -n "$APPLY_ID" && "$APPLY_ID" != "null" && ("$STATUS" == "applied" || "$STATUS" == "errored") ]]; then
-  echo "Apply phase found (ID: ${APPLY_ID}). Fetching apply log..."
-  LOG_ENDPOINT="${TFC_API_BASE}/applies/${APPLY_ID}/log"
-elif [[ -n "$PLAN_ID" && "$PLAN_ID" != "null" ]]; then
-  echo "Plan phase found (ID: ${PLAN_ID}). Fetching plan log..."
-  LOG_ENDPOINT="${TFC_API_BASE}/plans/${PLAN_ID}/log"
-else
-  echo "::error::Neither Plan nor Apply ID found for Run ${RUN_ID}."
+# Fetch log-read-url from apply (if executed) or plan resource
+LOG_READ_URL=""
+if [[ -n "$APPLY_ID" && "$APPLY_ID" != "null" && ("$STATUS" == "applied" || "$STATUS" == "errored" || "$STATUS" == "canceled" || "$STATUS" == "force_canceled") ]]; then
+  echo "Apply phase found (ID: ${APPLY_ID}). Fetching apply details for log-read-url..."
+  APPLY_RESP=$(curl -s -f -H "Authorization: Bearer ${TFC_TOKEN}" \
+    -H "Content-Type: application/vnd.api+json" \
+    "${TFC_API_BASE}/applies/${APPLY_ID}")
+  LOG_READ_URL=$(echo "$APPLY_RESP" | jq -r '.data.attributes["log-read-url"] // empty')
+fi
+
+if [[ -z "$LOG_READ_URL" && -n "$PLAN_ID" && "$PLAN_ID" != "null" ]]; then
+  echo "Plan phase found (ID: ${PLAN_ID}). Fetching plan details for log-read-url..."
+  PLAN_RESP=$(curl -s -f -H "Authorization: Bearer ${TFC_TOKEN}" \
+    -H "Content-Type: application/vnd.api+json" \
+    "${TFC_API_BASE}/plans/${PLAN_ID}")
+  LOG_READ_URL=$(echo "$PLAN_RESP" | jq -r '.data.attributes["log-read-url"] // empty')
+fi
+
+if [[ -z "$LOG_READ_URL" ]]; then
+  echo "::error::Could not resolve 'log-read-url' for Plan (${PLAN_ID}) or Apply (${APPLY_ID}) in Run ${RUN_ID}."
   exit 1
 fi
 
-echo "Downloading execution log from ${LOG_ENDPOINT}..."
-curl -s -f -L -H "Authorization: Bearer ${TFC_TOKEN}" \
-  "${LOG_ENDPOINT}" > "${OUTPUT_LOG_FILE}"
+echo "Downloading execution log via log-read-url..."
+# Note: log-read-url is a pre-signed storage URL (e.g. archivist.terraform.io).
+# Do NOT send the Authorization: Bearer header to this URL, as object storage rejects it with 400 Bad Request.
+curl -s -f -L "${LOG_READ_URL}" > "${OUTPUT_LOG_FILE}"
 
 LOG_SIZE=$(wc -c < "${OUTPUT_LOG_FILE}" | tr -d ' ')
 echo "Successfully downloaded log to ${OUTPUT_LOG_FILE} (${LOG_SIZE} bytes)."
