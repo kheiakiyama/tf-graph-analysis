@@ -46,46 +46,69 @@ tar -C "$COPY_ROOT" -h --exclude='.git' --exclude='.terraform' -cf - . | tar -C 
 
 echo "Rewriting cloud and backend configurations to local backend in temporary copy..."
 TMP_DIR="$TMP_DIR" python3 -c '
-import os, json
+import os, re, json
 
 backend_inserted = False
+
+def skip_comments_and_spaces(content, p):
+    n = len(content)
+    while p < n:
+        if content[p].isspace():
+            p += 1
+        elif content[p:p+2] == "//" or content[p] == "#":
+            idx = content.find("\n", p)
+            p = n if idx == -1 else idx + 1
+        elif content[p:p+2] == "/*":
+            idx = content.find("*/", p + 2)
+            p = n if idx == -1 else idx + 2
+        else:
+            break
+    return p
+
+def check_heredoc(content, pos):
+    n = len(content)
+    if content[pos:pos+2] == "<<" and (pos+2 < n and (content[pos+2].isalpha() or content[pos+2] == "-")):
+        m = re.match(r"<<-?([A-Za-z_][A-Za-z0-9_]*)", content[pos:])
+        if m:
+            marker = m.group(1)
+            is_ind = (content[pos+2] == "-")
+            nl = content.find("\n", pos)
+            if nl != -1:
+                pat = re.compile(r"^[ \t]*" + re.escape(marker) + r"\s*$", re.MULTILINE) if is_ind else re.compile(r"^" + re.escape(marker) + r"\s*$", re.MULTILINE)
+                m2 = pat.search(content, nl + 1)
+                if m2:
+                    return m2.end()
+    return None
 
 def find_closing_brace(content, start_pos):
     n = len(content)
     pos = start_pos
     depth = 1
     in_str = False
-    in_line_comment = False
-    in_block_comment = False
+    in_lc = False
+    in_bc = False
     while pos < n and depth > 0:
         c = content[pos]
         c2 = content[pos:pos+2]
-        if in_line_comment:
-            if c == "\n":
-                in_line_comment = False
-        elif in_block_comment:
-            if c2 == "*/":
-                in_block_comment = False
-                pos += 1
+        if in_lc:
+            if c == "\n": in_lc = False
+        elif in_bc:
+            if c2 == "*/": in_bc = False; pos += 1
         elif in_str:
-            if c == "\\":
-                pos += 1
-            elif c == "\"":
-                in_str = False
+            if c == "\\": pos += 1
+            elif c == "\"": in_str = False
         else:
-            if c2 == "//" or c == "#":
-                in_line_comment = True
-            elif c2 == "/*":
-                in_block_comment = True
-                pos += 1
-            elif c == "\"":
-                in_str = True
-            elif c == "{":
-                depth += 1
-            elif c == "}":
-                depth -= 1
-                if depth == 0:
-                    return pos
+            if c2 == "//" or c == "#": in_lc = True
+            elif c2 == "/*": in_bc = True; pos += 1
+            elif c == "\"": in_str = True
+            else:
+                h_end = check_heredoc(content, pos)
+                if h_end:
+                    pos = h_end - 1
+                elif c == "{": depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0: return pos
         pos += 1
     return pos if depth == 0 else -1
 
@@ -93,94 +116,80 @@ def clean_block_body(body):
     global backend_inserted
     bn = len(body)
     bpos = 0
-    in_s = False
-    in_lc = False
-    in_bc = False
     res = []
     last_copied = 0
+    depth = 0
+    in_str = False
+    in_lc = False
+    in_bc = False
     changed = False
 
     while bpos < bn:
         c = body[bpos]
         c2 = body[bpos:bpos+2]
         if in_lc:
-            if c == "\n":
-                in_lc = False
+            if c == "\n": in_lc = False
         elif in_bc:
-            if c2 == "*/":
-                in_bc = False
-                bpos += 1
-        elif in_s:
-            if c == "\\":
-                bpos += 1
-            elif c == "\"":
-                in_s = False
+            if c2 == "*/": in_bc = False; bpos += 1
+        elif in_str:
+            if c == "\\": bpos += 1
+            elif c == "\"": in_str = False
         else:
-            if c2 == "//" or c == "#":
-                in_lc = True
-            elif c2 == "/*":
-                in_bc = True
-                bpos += 1
-            elif c == "\"":
-                in_s = True
+            if c2 == "//" or c == "#": in_lc = True
+            elif c2 == "/*": in_bc = True; bpos += 1
+            elif c == "\"": in_str = True
             else:
-                target = None
-                for kw in ["cloud", "backend"]:
-                    if body[bpos:].startswith(kw):
-                        before_ok = (bpos == 0 or not (body[bpos-1].isalnum() or body[bpos-1] == "_"))
-                        after_pos = bpos + len(kw)
-                        after_ok = (after_pos < bn and not (body[after_pos].isalnum() or body[after_pos] == "_"))
-                        if before_ok and after_ok:
-                            target = kw
-                            break
-                if target:
-                    k = bpos + len(target)
-                    in_lbl_str = False
-                    found_brace = -1
-                    while k < bn:
-                        ch = body[k]
-                        if ch == "\"":
-                            in_lbl_str = not in_lbl_str
-                        elif not in_lbl_str and ch == "{":
-                            found_brace = k
-                            break
-                        elif not in_lbl_str and (ch == "\n" and target == "cloud"):
-                            break
-                        k += 1
-                    if found_brace != -1:
-                        depth = 1
-                        ck = found_brace + 1
-                        c_str = False
-                        c_lc = False
-                        c_bc = False
-                        closing = -1
-                        while ck < bn and depth > 0:
-                            cc = body[ck]
-                            cc2 = body[ck:ck+2]
-                            if c_lc:
-                                if cc == "\n": c_lc = False
-                            elif c_bc:
-                                if cc2 == "*/": c_bc = False; ck += 1
-                            elif c_str:
-                                if cc == "\\": ck += 1
-                                elif cc == "\"": c_str = False
+                h_end = check_heredoc(body, bpos)
+                if h_end:
+                    bpos = h_end - 1
+                elif c == "{": depth += 1
+                elif c == "}": depth -= 1
+                elif depth == 0:
+                    # Only match cloud { ... } or backend ... { ... } at depth == 0 of terraform block
+                    target = None
+                    for kw in ["cloud", "backend"]:
+                        if body[bpos:].startswith(kw):
+                            before_ok = (bpos == 0 or not (body[bpos-1].isalnum() or body[bpos-1] == "_"))
+                            after_pos = bpos + len(kw)
+                            after_ok = (after_pos < bn and not (body[after_pos].isalnum() or body[after_pos] == "_"))
+                            if before_ok and after_ok:
+                                target = kw
+                                break
+                    if target:
+                        p = skip_comments_and_spaces(body, bpos + len(target))
+                        found_brace = -1
+                        if target == "cloud":
+                            if p < bn and body[p] == "{":
+                                found_brace = p
+                        elif target == "backend":
+                            # Backend has a label: quoted string or identifier (never an '=' sign)
+                            if p < bn and body[p] == "\"":
+                                end_lbl = p + 1
+                                while end_lbl < bn:
+                                    if body[end_lbl] == "\\": end_lbl += 2
+                                    elif body[end_lbl] == "\"": break
+                                    else: end_lbl += 1
+                                if end_lbl < bn and body[end_lbl] == "\"":
+                                    p = skip_comments_and_spaces(body, end_lbl + 1)
                             else:
-                                if cc2 == "//" or cc == "#": c_lc = True
-                                elif cc2 == "/*": c_bc = True; ck += 1
-                                elif cc == "\"": c_str = True
-                                elif cc == "{": depth += 1
-                                elif cc == "}": depth -= 1; closing = ck
-                            ck += 1
-                        if depth == 0:
-                            res.append(body[last_copied:bpos])
-                            if not backend_inserted:
-                                res.append("/* stripped " + target + " */\n  backend \"local\" {}\n")
-                                backend_inserted = True
-                            else:
-                                res.append("/* stripped duplicate " + target + " */\n")
-                            bpos = closing
-                            last_copied = closing + 1
-                            changed = True
+                                m_id = re.match(r"[A-Za-z0-9_]+", body[p:])
+                                if m_id:
+                                    p = skip_comments_and_spaces(body, p + len(m_id.group(0)))
+                            if p < bn and body[p] == "{":
+                                found_brace = p
+
+                        if found_brace != -1:
+                            closing_pos = find_closing_brace(body, found_brace + 1)
+                            if closing_pos != -1:
+                                res.append(body[last_copied:bpos])
+                                if not backend_inserted:
+                                    res.append("/* stripped " + target + " */\n  backend \"local\" {}\n")
+                                    backend_inserted = True
+                                else:
+                                    res.append("/* stripped duplicate " + target + " */\n")
+                                bpos = closing_pos
+                                last_copied = closing_pos + 1
+                                changed = True
         bpos += 1
     res.append(body[last_copied:])
     return "".join(res), changed
@@ -189,42 +198,45 @@ def process_hcl(content):
     n = len(content)
     pos = 0
     in_str = False
-    in_line_comment = False
-    in_block_comment = False
+    in_lc = False
+    in_bc = False
     out = []
     last_idx = 0
 
     while pos < n:
         c = content[pos]
         c2 = content[pos:pos+2]
-        if in_line_comment:
-            if c == "\n": in_line_comment = False
-        elif in_block_comment:
-            if c2 == "*/": in_block_comment = False; pos += 1
+        if in_lc:
+            if c == "\n": in_lc = False
+        elif in_bc:
+            if c2 == "*/": in_bc = False; pos += 1
         elif in_str:
             if c == "\\": pos += 1
             elif c == "\"": in_str = False
         else:
-            if c2 == "//" or c == "#": in_line_comment = True
-            elif c2 == "/*": in_block_comment = True; pos += 1
+            if c2 == "//" or c == "#": in_lc = True
+            elif c2 == "/*": in_bc = True; pos += 1
             elif c == "\"": in_str = True
-            elif content[pos:].startswith("terraform"):
-                before_ok = (pos == 0 or not (content[pos-1].isalnum() or content[pos-1] == "_"))
-                after_pos = pos + len("terraform")
-                after_ok = (after_pos < n and not (content[after_pos].isalnum() or content[after_pos] == "_"))
-                if before_ok and after_ok:
-                    k = after_pos
-                    while k < n and content[k].isspace(): k += 1
-                    if k < n and content[k] == "{":
-                        closing = find_closing_brace(content, k + 1)
-                        if closing != -1:
-                            body = content[k+1:closing]
-                            cleaned_body, changed = clean_block_body(body)
-                            if changed:
-                                out.append(content[last_idx:k+1])
-                                out.append(cleaned_body)
-                                last_idx = closing
-                                pos = closing
+            else:
+                h_end = check_heredoc(content, pos)
+                if h_end:
+                    pos = h_end - 1
+                elif content[pos:].startswith("terraform"):
+                    before_ok = (pos == 0 or not (content[pos-1].isalnum() or content[pos-1] == "_"))
+                    after_pos = pos + len("terraform")
+                    after_ok = (after_pos < n and not (content[after_pos].isalnum() or content[after_pos] == "_"))
+                    if before_ok and after_ok:
+                        k = skip_comments_and_spaces(content, after_pos)
+                        if k < n and content[k] == "{":
+                            closing = find_closing_brace(content, k + 1)
+                            if closing != -1:
+                                body = content[k+1:closing]
+                                cleaned_body, changed = clean_block_body(body)
+                                if changed:
+                                    out.append(content[last_idx:k+1])
+                                    out.append(cleaned_body)
+                                    last_idx = closing
+                                    pos = closing
         pos += 1
     out.append(content[last_idx:])
     return "".join(out)
