@@ -152,7 +152,7 @@ jobs:
           TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1 || true
 
       - name: Critical Path Analysis
-        uses: kheiakiyama/tf-graph-analysis@v0.1.6
+        uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           dot-file: 'graph.dot'
           log-file: 'tf_plan.log'
@@ -184,7 +184,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Critical Path Analysis (TFC)
-        uses: kheiakiyama/tf-graph-analysis@v0.1.6
+        uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           tfc-token: ${{ secrets.TFC_TOKEN }}
           tfc-organization: 'my-org'
@@ -215,13 +215,13 @@ To ensure maximum security and reproducibility, this Action strictly downloads o
 
 - **Semantic Version Pinning (Recommended for most teams)**:
   ```yaml
-  uses: kheiakiyama/tf-graph-analysis@v0.1.6
+  uses: kheiakiyama/tf-graph-analysis@v0.1.7
   ```
 - **Commit SHA Pinning (Recommended for strict security policies / OpenSSF Scorecard)**:
   ```yaml
-  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.6
+  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.7
   ```
-  When pinned by commit SHA, the Action automatically resolves the matching release tag from GitHub, downloads the official binary, and verifies its SHA-256 checksum. If pinning a non-release commit, specify `with: version: v0.1.6`.
+  When pinned by commit SHA, the Action automatically resolves the matching release tag from GitHub, downloads the official binary, and verifies its SHA-256 checksum. If pinning a non-release commit, specify `with: version: v0.1.7`.
 
 ---
 
