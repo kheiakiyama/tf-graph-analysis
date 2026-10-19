@@ -30,6 +30,10 @@ inputs:
     description: 'Specific HCP Terraform Run ID. If omitted, the latest run matching the current commit SHA is used.'
     required: false
     default: ''
+  tfc-poll-timeout:
+    description: 'Maximum time in seconds to wait for HCP Terraform plan/apply to complete (default: 900).'
+    required: false
+    default: '900'
   working-directory:
     description: 'Working directory containing Terraform configuration.'
     required: false
@@ -172,6 +176,8 @@ runs:
       id: prep
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        TFC_POLL_TIMEOUT: ${{ inputs.tfc-poll-timeout }}
       run: |
         DOT_FILE="${{ inputs.dot-file }}"
         LOG_FILE="${{ inputs.log-file }}"
@@ -214,11 +220,8 @@ EOF
             echo "Initializing Terraform locally (offline/local backend)..."
             terraform init -reconfigure -input=false
 
-            echo "Generating dependency graph (graph.dot)..."
-            if ! terraform graph > graph.dot; then
-              echo "Standard graph generation failed, attempting with -type=plan..."
-              terraform graph -type=plan > graph.dot
-            fi
+            echo "Generating plan dependency graph (graph.dot) with -type=plan..."
+            terraform graph -type=plan > graph.dot
 
             cleanup_override
             trap - EXIT
