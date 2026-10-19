@@ -39,7 +39,7 @@ inputs:
     required: false
     default: '.'
   version:
-    description: 'Version of tf-graph-analysis to download (e.g. "latest" or "v0.1.6").'
+    description: 'Version of tf-graph-analysis to download (e.g. "latest" or "v0.1.7").'
     required: false
     default: 'latest'
   upload-html-report:
@@ -196,35 +196,8 @@ runs:
 
           # If dot-file is not provided, generate from current directory
           if [[ -z "$DOT_FILE" ]]; then
-            echo "No DOT file provided. Generating 'graph.dot' locally..."
-
-            if ! command -v terraform >/dev/null 2>&1; then
-              echo "::error::'terraform' CLI is required to generate the dependency graph. Please install it (e.g. using hashicorp/setup-terraform)."
-              exit 1
-            fi
-
-            # Temporarily override backend to local to prevent Terraform from connecting
-            # to HCP Terraform (Terraform Cloud) or requiring remote credentials/permissions.
-            OVERRIDE_FILE="_tf_graph_backend_override.tf"
-            cat << 'EOF' > "$OVERRIDE_FILE"
-terraform {
-  backend "local" {}
-}
-EOF
-
-            cleanup_override() {
-              rm -f "$OVERRIDE_FILE"
-            }
-            trap cleanup_override EXIT
-
-            echo "Initializing Terraform locally (offline/local backend)..."
-            terraform init -reconfigure -input=false
-
-            echo "Generating plan dependency graph (graph.dot) with -type=plan..."
-            terraform graph -type=plan > graph.dot
-
-            cleanup_override
-            trap - EXIT
+            echo "No DOT file provided. Generating 'graph.dot' locally in isolated copy..."
+            "${{ github.action_path }}/scripts/generate-graph.sh" "." "graph.dot"
             DOT_FILE="graph.dot"
           fi
         fi

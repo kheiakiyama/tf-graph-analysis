@@ -138,7 +138,7 @@ jobs:
           TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1 || true
 
       - name: Critical Path Analysis
-        uses: kheiakiyama/tf-graph-analysis@v0.1.6
+        uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           dot-file: 'graph.dot'
           log-file: 'tf_plan.log'
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Critical Path Analysis (TFC)
-        uses: kheiakiyama/tf-graph-analysis@v0.1.6
+        uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           tfc-token: ${{ secrets.TFC_TOKEN }}
           tfc-organization: 'my-org'
@@ -203,13 +203,13 @@ jobs:
 
 - **セマンティックバージョン固定（一般的なチームに推奨）**:
   ```yaml
-  uses: kheiakiyama/tf-graph-analysis@v0.1.6
+  uses: kheiakiyama/tf-graph-analysis@v0.1.7
   ```
 - **コミット SHA ピン留め（厳格なセキュリティポリシー / OpenSSF Scorecard 準拠）**:
   ```yaml
-  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.6
+  uses: kheiakiyama/tf-graph-analysis@<commit-sha> # v0.1.7
   ```
-  コミット SHA でピン留めされた場合、Action が自動的に該当するリリースバージョンを GitHub API から逆引き解決し、バイナリのダウンロードとチェックサム検証を行います（未リリースコミットをピン留めする場合は `with: version: v0.1.6` を明示してください）。
+  コミット SHA でピン留めされた場合、Action が自動的に該当するリリースバージョンを GitHub API から逆引き解決し、バイナリのダウンロードとチェックサム検証を行います（未リリースコミットをピン留めする場合は `with: version: v0.1.7` を明示してください）。
 
 ---
 
