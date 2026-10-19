@@ -192,7 +192,7 @@ runs:
             "${{ inputs.tfc-workspace }}" \
             "${{ inputs.tfc-run-id }}" \
             "${LOG_FILE}" \
-            "${{ github.sha }}"
+            "${{ github.event.pull_request.head.sha || github.sha }}"
 
           # If dot-file is not provided, generate from current directory
           if [[ -z "$DOT_FILE" ]]; then
