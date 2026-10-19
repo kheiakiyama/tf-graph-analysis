@@ -39,7 +39,7 @@ inputs:
     required: false
     default: '.'
   version:
-    description: 'Version of tf-graph-analysis to download (e.g. "latest" or "v0.1.0").'
+    description: 'Version of tf-graph-analysis to download (e.g. "latest" or "v0.1.6").'
     required: false
     default: 'latest'
   upload-html-report:
