@@ -120,27 +120,38 @@ open report.html
 
 ---
 
-## GitHub Action Integration
+## GitHub Action CI & Scheduled Integration
 
-You can integrate `tf-graph-analysis` directly into your GitHub Actions CI workflows to post bottleneck analysis summaries directly to Pull Requests.
+`tf-graph-analysis` can be integrated into your GitHub Actions workflows. Depending on your infrastructure architecture and Terraform execution mode, there are **two distinct usage patterns**:
 
-### Case A: Running Terraform directly in GitHub Actions
+| Pattern | Execution Environment | Intended Triggers | Key Characteristics |
+|:---|:---|:---|:---|
+| **Pattern A: Local Execution** | GitHub Actions Runner | **CI (`pull_request`), Cron (`schedule`), Manual** | Runs `terraform plan` on the GHA runner. TRACE logging is confined locally to the runner, making it ideal for automatic PR checks and scheduled benchmarks without affecting any web UI. |
+| **Pattern B: Remote Execution** | HCP Terraform (TFC) | **Cron (`schedule`) only, Manual** | Fetches remotely executed plan logs via the TFC API. **Scheduled execution is strongly recommended to prevent degrading everyday TFC Web GUI responsiveness.** |
 
-If you run `terraform plan` on the GitHub Actions runner:
+---
+
+### Pattern A: Running Terraform directly in GitHub Actions
+
+When running `terraform plan` on the GitHub Actions runner, TRACE logs are written only to a local file on the runner VM, keeping external web UIs completely untouched. It is safe, fast, and suitable for every Pull Request and scheduled runs.
 
 ```yaml
-name: Terraform Plan & Analysis
+name: Terraform Plan & Critical Path Analysis
 
 on:
   pull_request:
     branches: [ main ]
+  schedule:
+    # Every Monday at 02:00 JST (17:00 UTC Sunday)
+    - cron: '0 17 * * 0'
+  workflow_dispatch:
 
 jobs:
   plan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write # Required for posting PR comments
+      pull-requests: write # Required for PR comments (PR events only)
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v3
@@ -158,54 +169,73 @@ jobs:
           log-file: 'tf_plan.log'
           pr-comment: 'true'
 
-> 💡 **HTML Report**: The interactive waterfall HTML report is automatically uploaded as a workflow artifact (`terraform-critical-path-report`) and linked in the PR comment. To disable, set `upload-html-report: 'false'`.
+> 💡 **Report Destinations**:
+> - **PR Comment**: Automatically posted/updated when triggered by a Pull Request.
+> - **GitHub Actions Summary**: Rendered directly in the Actions run Summary tab.
+> - **HTML Report**: Full interactive waterfall chart is saved as a workflow artifact (`terraform-critical-path-report`).
 ```
 
 ---
 
-### Case B: Using HCP Terraform (Terraform Cloud) Remote Execution
+### Pattern B: Using HCP Terraform (Terraform Cloud) Remote Execution
 
-When using HCP Terraform, the plan executes remotely. The Action automatically fetches the plan/apply log via the HCP Terraform API and generates the dependency graph:
+When using HCP Terraform Remote Execution, the plan runs remotely on HCP Terraform worker VMs.
+
+#### ⚠️ Critical Considerations for TFC (Why Scheduled Execution is Recommended)
+
+1. **Need for `TF_LOG_CORE: TRACE`**:
+   - Unlike `terraform apply`, `terraform plan` does not create or modify resources; it only refreshes state. Standard logs do not output individual resource timings.
+   - Accurately measuring resource-level execution duration requires `TF_LOG_CORE=TRACE`.
+2. **Impact on TFC Web GUI**:
+   - HCP Terraform streams all standard output directly into the browser GUI.
+   - For workspaces with hundreds to 1,000+ resources, enabling `TF_LOG_CORE=TRACE` produces tens of thousands of log lines, causing the **TFC Web GUI to freeze or lag significantly**, degrading day-to-day developer review and approval workflows.
+   - Therefore, **we strongly recommend running this via Cron (e.g. nightly or weekly) rather than on every PR**.
+
+#### Scheduled Workflow Configuration Example
+
+This Action automates the temporary lifecycle of the required log level:
+- `tfc-manage-log-level: 'true'`: Captures the existing state of workspace variables, temporarily sets `TF_LOG_CORE=TRACE`, and **guarantees restoration (or deletion) of the original state upon completion (even if failures occur)** via an `if: always()` step.
+- `tfc-trigger-run: 'true'`: Automatically queues a safe, speculative `plan-only` run via the TFC API without waiting for VCS webhooks.
 
 ```yaml
-name: Terraform Cloud Analysis
+name: Scheduled Terraform Critical Path Analysis (TFC)
 
 on:
-  pull_request:
-    branches: [ main ]
+  schedule:
+    # Every Monday at 02:00 JST (17:00 UTC Sunday)
+    - cron: '0 17 * * 0'
+  workflow_dispatch: # Allows manual on-demand execution
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v7
 
-      - name: Critical Path Analysis (TFC)
+      - name: Critical Path Analysis (TFC Scheduled)
         uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           tfc-token: ${{ secrets.TFC_TOKEN }}
           tfc-organization: 'my-org'
           tfc-workspace: 'my-workspace'
-          pr-comment: 'true'
+          working-directory: 'terraform/envs/prod'
+          tfc-trigger-run: 'true'          # Queues a speculative plan-only run via API
+          tfc-manage-log-level: 'true'     # Injects TF_LOG_CORE=TRACE and restores afterwards
+          upload-html-report: 'true'       # Saves interactive HTML report as artifact
+
+> 💡 **Viewing Reports**:
+> - The summary table is displayed in the GitHub Actions **Summary** tab.
+> - The full interactive Gantt chart is available under **Artifacts** (`tf-analysis-report.html`).
 ```
 
-#### 🔒 Security Best Practices: Least-Privilege `TFC_TOKEN`
+#### 🔒 `TFC_TOKEN` Recommended Permissions
 
-Do **NOT** use an Organization Token or Admin User Token. Configure a dedicated, read-only token:
-
-1. In HCP Terraform, go to **Settings** > **Teams** and create a read-only team (e.g. `ci-profiler`).
-2. Grant the team **Read-only** workspace access:
-   - **Runs**: `Read runs` only (do NOT grant `Apply`, `Plan`, or `Destroy`).
-   - **State Versions**: `No access` (state files are not needed).
-   - **Variables**: `No access` (sensitive variables are never accessed).
-3. Generate a **Team Token** and store it in GitHub Secrets as `TFC_TOKEN`.
-
-> 💡 **Why no extra permissions are needed**: During graph generation, this Action automatically overrides the backend to `local` so Terraform never dials HCP Terraform or requires workspace/state read permissions. The `TFC_TOKEN` is used purely to download plan/apply logs via the API.
->
-> *(Note: GitHub-hosted runners have `terraform` pre-installed. If using a self-hosted runner without Terraform, add `hashicorp/setup-terraform` before this Action.)*
+When running scheduled analysis (triggering runs and temporarily managing log level), configure the following minimum permissions for your Team Token:
+- **Runs**: `Plan` or `Write` (required to queue and poll `plan-only` runs; `Apply` permission is **not** required).
+- **Variables**: `Read & Write` (required to temporarily set and restore `TF_LOG_CORE`).
+- **State Versions**: `No access` (state files are not read).
 
 ---
 

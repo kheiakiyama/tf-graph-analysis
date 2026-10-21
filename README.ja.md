@@ -108,25 +108,38 @@ open report.html
 
 ---
 
-## GitHub Action による CI 連携
+## GitHub Action による CI / Cron 連携
 
-Pull Request ごとに自動でクリティカルパス分析を実行し、ボトルネックチェーンや想定所要時間を PR コメントに投稿できます。
+`tf-graph-analysis` は GitHub Actions に組み込んで実行できます。インフラ環境の構成と Terraform の実行方式に応じて、**2つの利用パターン** があります。
+
+| パターン | 実行環境 | 想定トリガー | 特徴・使い分け |
+|:---|:---|:---|:---|
+| **パターン A: ローカル実行** | GitHub Actions ランナー上 | **CI (`pull_request`), Cron (`schedule`), 手動** | GHA 側で `terraform plan` を実行し、ログをローカルで取得。TFC Web GUI に影響を与えないため、全 PR での自動分析や Cron に最適。 |
+| **パターン B: リモート実行** | HCP Terraform (TFC) | **Cron (`schedule`) のみ, 手動** | TFC リモート実行環境で実行された Plan ログを API 経由で取得して分析。**日常の Web GUI 表示を重くしないため、Cron による定期実行を強く推奨。** |
+
+---
 
 ### パターン A: GitHub Actions ランナー上で直接 Terraform を実行している場合
 
+GHA ランナー上で `terraform plan` を実行する場合、TRACE ログはランナー内部のファイルにのみ出力されるため、外部の GUI に一切影響を与えません。Pull Request ごとの CI や定期 Cron で安全かつ高速に実行できます。
+
 ```yaml
-name: Terraform Plan & Analysis
+name: Terraform Plan & Critical Path Analysis
 
 on:
   pull_request:
     branches: [ main ]
+  schedule:
+    # 毎週月曜 深夜 2:00 (JST)
+    - cron: '0 17 * * 0'
+  workflow_dispatch:
 
 jobs:
   plan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write # PR コメント投稿に必要
+      pull-requests: write # PR コメント投稿に必要 (PR イベント時のみ)
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v3
@@ -144,56 +157,73 @@ jobs:
           log-file: 'tf_plan.log'
           pr-comment: 'true'
 
-> 💡 **HTML レポート**: インタラクティブな HTML レポートは自動的にワークフローの Artifact（`terraform-critical-path-report`）として保存され、PR コメントから直接ダウンロードできます（無効化したい場合は `upload-html-report: 'false'` を指定）。
+> 💡 **レポートの出力先**:
+> - **PR コメント**: Pull Request 起因の実行時のみ、サマリーが自動投稿されます。
+> - **GitHub Actions Summary**: 実行画面の Summary タブに Markdown 表が常に表示されます。
+> - **HTML レポート**: インタラクティブな HTML レポートはワークフローの Artifact（`terraform-critical-path-report`）として保存されます。
 ```
 
 ---
 
 ### パターン B: HCP Terraform (Terraform Cloud) でリモート実行している場合
 
-HCP Terraform で実行している場合、Action が HCP Terraform API を介して最新の Plan/Apply ログを自動取得し、依存グラフもリポジトリから自動生成して解析します。
+HCP Terraform の Remote Execution モードを利用している環境では、Action が TFC API を介してログを取得し、依存関係グラフをリポジトリから生成して解析します。
+
+#### ⚠️ TFC 利用時の重要な注意点（なぜ Cron のみを想定しているか）
+
+1. **`TF_LOG_CORE: TRACE` の必要性**:
+   - `terraform apply` と異なり、`terraform plan` はリソースの作成・変更を行わずリフレッシュ（状態確認）のみを行うため、標準のログにはリソースごとの所要時間が出力されません。
+   - 正確なボトルネック分析を行うには、Terraform 内部のグラフ探索ログを出力する `TF_LOG_CORE=TRACE` の設定が必須です。
+2. **TFC Web GUI への影響（日常の開発への支障）**:
+   - TFC は実行ログをそのまま Web GUI のブラウザ画面にストリーミングします。
+   - 数百〜1,000+ リソース規模の環境で `TF_LOG_CORE=TRACE` を常時有効化すると、数万行以上のログがブラウザに流れ込み、**TFC Web GUI がフリーズして差分の確認や Apply 判断に著しい時間がかかってしまいます**。
+   - そのため、**PR オープンごとの自動実行は非推奨とし、深夜や週次の Cron（定期実行）での定点観測を強く推奨** しています。
+
+#### 定期実行（Cron）ワークフローの設定例
+
+本 Action は、定期実行時に以下の自動化を安全に行います：
+- `tfc-manage-log-level: 'true'`: 実行開始時に TFC ワークスペース変数の状態を退避し、一時的に `TF_LOG_CORE=TRACE` をセット。**終了時にはエラー時も含めて必ず元の状態に復元（元々なければ削除）** します。
+- `tfc-trigger-run: 'true'`: TFC API を叩いて、コミット起因の Webhook を待たずに安全な `plan-only` の Run を自動発行します。
 
 ```yaml
-name: Terraform Cloud Analysis
+name: Scheduled Terraform Critical Path Analysis (TFC)
 
 on:
-  pull_request:
-    branches: [ main ]
+  schedule:
+    # 毎週月曜 深夜 2:00 (JST)
+    - cron: '0 17 * * 0'
+  workflow_dispatch: # 手動でのオンデマンド実行も可能
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v7
 
-      - name: Critical Path Analysis (TFC)
+      - name: Critical Path Analysis (TFC Scheduled)
         uses: kheiakiyama/tf-graph-analysis@v0.1.7
         with:
           tfc-token: ${{ secrets.TFC_TOKEN }}
           tfc-organization: 'my-org'
           tfc-workspace: 'my-workspace'
-          pr-comment: 'true'
+          working-directory: 'terraform/envs/prod'
+          tfc-trigger-run: 'true'          # API 経由で Speculative Plan (plan-only) を発行
+          tfc-manage-log-level: 'true'     # 実行中のみ TF_LOG_CORE=TRACE を注入し事後復元
+          upload-html-report: 'true'       # HTML レポートを Artifact に保存
+
+> 💡 **分析結果の確認**:
+> - 定期実行時、サマリー表は GitHub Actions 実行結果画面の **Summary** に表示されます。
+> - 詳細なガントチャート・クリティカルパス可視化は、保存された **Artifacts** から `tf-analysis-report.html` をダウンロードしてブラウザで確認できます。
 ```
 
-#### 🔒 セキュリティベストプラクティス: `TFC_TOKEN` の最小権限設定
+#### 🔒 `TFC_TOKEN` の推奨権限設定
 
-セキュリティ上の観点から、管理者権限を持つ User Token や Organization Token の使用は **強く非推奨** です。CI/CD 用の読み取り専用トークンを作成してください：
-
-1. HCP Terraform コンソールで **Settings** > **Teams** を開き、専用チーム（例: `ci-profiler`）を作成します。
-2. 対象 Workspace のアクセス権限（Workspace Access）を設定します：
-   - **Runs**: `Read runs` のみ許可（`Plan`, `Apply`, `Destroy` 権限は **不要** です）
-   - **State Versions**: `No access`（State ファイルは読み取りません）
-   - **Variables**: `No access`（機密変数へのアクセスは不要です）
-3. 作成したチームで **Team Token** を発行し、GitHub の Secrets（`TFC_TOKEN`）に登録します。
-
-この設定により、万が一トークンが漏洩した場合でも、インフラの変更や State 内の機密情報へのアクセスを完全に防止できます。
-
-> 💡 **追加の権限付与が不要な理由**: グラフ生成時、本 Action はバックエンド設定を自動的かつ一時的に `local` にオーバーライドします。そのため、Terraform CLI が HCP Terraform にアクセスしたり、State や Workspace の読み取り権限を要求したりすることはありません。`TFC_TOKEN` は API 経由での Plan/Apply ログの取得にのみ使用されます。
->
-> *(※ GitHub-hosted ランナーには `terraform` がプリインストールされていますが、Terraform 未導入のセルフホストランナーをご利用の場合は、前段に `hashicorp/setup-terraform` を追加してください)*
+定期実行（Run トリガーおよびログレベルの一時管理）を行う場合、Team Token または専用トークンに必要な最小限の権限を設定してください：
+- **Runs**: `Plan` または `Write`（`plan-only` Run の作成・待機に必要。※ `Apply` 権限は **不要** です）
+- **Variables**: `Read & Write`（`TF_LOG_CORE` の一時設定および復元に必要）
+- **State Versions**: `No access`（State ファイル自体の読み取りは不要です）
 
 ---
 
