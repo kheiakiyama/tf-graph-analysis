@@ -34,6 +34,18 @@ inputs:
     description: 'Maximum time in seconds to wait for HCP Terraform plan/apply to complete (default: 900).'
     required: false
     default: '900'
+  tfc-manage-log-level:
+    description: 'Temporarily set TF_LOG_CORE=TRACE on HCP Terraform workspace and restore original state upon completion.'
+    required: false
+    default: 'false'
+  tfc-trigger-run:
+    description: 'Trigger a new speculative plan-only run via HCP Terraform API (recommended for scheduled/cron workflows).'
+    required: false
+    default: 'false'
+  tfc-run-message:
+    description: 'Custom message for HCP Terraform run when tfc-trigger-run is true.'
+    required: false
+    default: 'Scheduled critical path analysis run triggered by GitHub Actions'
   working-directory:
     description: 'Working directory containing Terraform configuration.'
     required: false
@@ -172,6 +184,27 @@ runs:
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         echo "Successfully installed verified tf-graph-analysis binary."
 
+    - name: Configure HCP Terraform Log Level
+      if: ${{ inputs.tfc-token != '' && inputs.tfc-manage-log-level == 'true' }}
+      id: tfc_var
+      shell: bash
+      run: |
+        "${{ github.action_path }}/scripts/manage-tfc-var.sh" setup \
+          "${{ inputs.tfc-token }}" \
+          "${{ inputs.tfc-organization }}" \
+          "${{ inputs.tfc-workspace }}"
+
+    - name: Trigger HCP Terraform Plan Run
+      if: ${{ inputs.tfc-token != '' && inputs.tfc-trigger-run == 'true' }}
+      id: tfc_trigger
+      shell: bash
+      run: |
+        "${{ github.action_path }}/scripts/trigger-tfc-run.sh" \
+          "${{ inputs.tfc-token }}" \
+          "${{ inputs.tfc-organization }}" \
+          "${{ inputs.tfc-workspace }}" \
+          "${{ inputs.tfc-run-message }}"
+
     - name: Prepare DOT and Log files
       id: prep
       shell: bash
@@ -186,11 +219,12 @@ runs:
         if [[ -n "${{ inputs.tfc-token }}" ]]; then
           echo "Running in Terraform Cloud (HCP Terraform) mode..."
           LOG_FILE="tfc_downloaded.log"
+          TARGET_RUN_ID="${{ steps.tfc_trigger.outputs.run_id || inputs.tfc-run-id }}"
           "${{ github.action_path }}/scripts/fetch-tfc-log.sh" \
             "${{ inputs.tfc-token }}" \
             "${{ inputs.tfc-organization }}" \
             "${{ inputs.tfc-workspace }}" \
-            "${{ inputs.tfc-run-id }}" \
+            "${TARGET_RUN_ID}" \
             "${LOG_FILE}" \
             "${{ github.event.pull_request.head.sha || github.sha }}"
 
@@ -327,3 +361,15 @@ runs:
             });
             console.log('Created new PR comment (' + marker + ').');
           }
+
+    - name: Restore HCP Terraform Log Level
+      if: ${{ always() && steps.tfc_var.outcome != 'skipped' && steps.tfc_var.outputs.workspace_id != '' }}
+      shell: bash
+      run: |
+        "${{ github.action_path }}/scripts/manage-tfc-var.sh" restore \
+          "${{ inputs.tfc-token }}" \
+          "${{ steps.tfc_var.outputs.workspace_id }}" \
+          "${{ steps.tfc_var.outputs.var_existed }}" \
+          "${{ steps.tfc_var.outputs.orig_var_id }}" \
+          "${{ steps.tfc_var.outputs.orig_var_val }}" \
+          "${{ steps.tfc_var.outputs.created_var_id }}"
