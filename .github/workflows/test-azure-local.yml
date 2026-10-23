@@ -1,0 +1,110 @@
+name: Test - Pattern A (Azure Local Execution)
+
+on:
+  pull_request:
+    paths:
+      - 'action.yml'
+      - 'scripts/**'
+      - 'pkg/**'
+      - 'cmd/**'
+      - 'examples/modules/azure_network/**'
+      - 'examples/azure-local/**'
+      - '.github/workflows/test-azure-local.yml'
+  workflow_dispatch:
+
+jobs:
+  test-local:
+    name: Azure Local Plan & Analysis
+    runs-on: ubuntu-latest
+    # Prevent running on external forks
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    permissions:
+      id-token: write # Required for Azure OIDC authentication
+      contents: read
+      pull-requests: write # For PR comments if enabled
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check required Azure credentials
+        id: check-creds
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        run: |
+          if [ -z "$AZURE_CLIENT_ID" ]; then
+            echo "has_creds=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::AZURE_CLIENT_ID secret is not configured. Skipping Azure local test."
+          else
+            echo "has_creds=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Go & Build CLI
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+          cache: true
+
+      - name: Build tf-graph-analysis binary
+        if: steps.check-creds.outputs.has_creds == 'true'
+        run: |
+          go build -v -o tf-graph-analysis ./cmd/tf-graph-analysis
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Set up Terraform
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Azure OIDC Login
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Mask Sensitive IDs
+        if: steps.check-creds.outputs.has_creds == 'true'
+        run: |
+          # Extra layer of security: Ensure Azure subscription ID is masked across all runner logs
+          echo "::add-mask::${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
+      - name: Terraform Init & Plan
+        if: steps.check-creds.outputs.has_creds == 'true'
+        working-directory: examples/azure-local
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: 'true'
+          AZURE_BACKEND_RG: ${{ secrets.AZURE_BACKEND_RG }}
+          AZURE_BACKEND_SA: ${{ secrets.AZURE_BACKEND_SA }}
+          AZURE_BACKEND_CONTAINER: ${{ secrets.AZURE_BACKEND_CONTAINER }}
+        run: |
+          # Use remote Azure Blob Storage backend if configured, otherwise fallback to local/stateless mode
+          if [ -n "$AZURE_BACKEND_SA" ]; then
+            terraform init \
+              -backend-config="resource_group_name=${AZURE_BACKEND_RG}" \
+              -backend-config="storage_account_name=${AZURE_BACKEND_SA}" \
+              -backend-config="container_name=${AZURE_BACKEND_CONTAINER:-tfstate}" \
+              -backend-config="key=azure-local.tfstate"
+          else
+            terraform init -backend=false
+          fi
+          terraform graph -type=plan > graph.dot
+          # Capture plan TRACE log into file without leaking raw plan logs to stdout
+          TF_LOG=TRACE terraform plan -no-color > tf_plan.log 2>&1 || true
+
+      - name: Run tf-graph-analysis Action (Local Pattern)
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: ./
+        with:
+          working-directory: examples/azure-local
+          dot-file: 'graph.dot'
+          log-file: 'tf_plan.log'
+          upload-html-report: 'true'
+          title: 'Azure Network Local Test'
+          pr-comment: ${{ github.event_name == 'pull_request' }}

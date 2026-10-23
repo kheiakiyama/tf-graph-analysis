@@ -1,0 +1,57 @@
+name: Test - Pattern B (HCP Terraform Remote Execution)
+
+on:
+  schedule:
+    # Every Monday at 02:00 JST (17:00 UTC Sunday)
+    - cron: '0 17 * * 0'
+  workflow_dispatch:
+
+jobs:
+  test-tfc:
+    name: HCP Terraform Scheduled Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check required TFC credentials
+        id: check-creds
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+        run: |
+          if [ -z "$TFC_TOKEN" ]; then
+            echo "has_creds=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::TFC_TOKEN secret is not configured. Skipping scheduled TFC test."
+          else
+            echo "has_creds=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Go & Build CLI
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+          cache: true
+
+      - name: Build tf-graph-analysis binary
+        if: steps.check-creds.outputs.has_creds == 'true'
+        run: |
+          go build -v -o tf-graph-analysis ./cmd/tf-graph-analysis
+          echo "$(pwd)" >> $GITHUB_PATH
+
+      - name: Run tf-graph-analysis Action (TFC Pattern)
+        if: steps.check-creds.outputs.has_creds == 'true'
+        uses: ./
+        with:
+          tfc-token: ${{ secrets.TFC_TOKEN }}
+          tfc-organization: ${{ secrets.TFC_ORGANIZATION }}
+          tfc-workspace: ${{ secrets.TFC_WORKSPACE }}
+          working-directory: 'examples/azure-tfc'
+          tfc-trigger-run: 'true'          # Queues a speculative plan-only run via TFC API
+          tfc-manage-log-level: 'true'     # Injects TF_LOG_CORE=TRACE and restores afterwards
+          upload-html-report: 'true'       # Saves interactive HTML report as artifact
+          title: 'Azure Network TFC Scheduled Test'
+          pr-comment: 'false'
